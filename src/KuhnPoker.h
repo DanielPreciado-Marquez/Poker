@@ -21,7 +21,7 @@ namespace dpm
 
 		void play(Cash startCapital, int maxIterations = 100);
 
-		void trainPlayers(unsigned int iterations, bool trainPlayerA = true, bool trainPlayerB = true);
+		void trainPlayer(unsigned int iterations, PlayerIndex playerIndex, bool playAgainstOtherPlayer);
 
 	private:
 		const RootNode m_GameTree;
@@ -37,6 +37,8 @@ namespace dpm
 		[[nodiscard]] Hands drawHands();
 
 		void switchPlayerIndices();
+
+		void resetPlayerIndices();
 
 		[[nodiscard]] PlayerSlot *getWinner();
 	};

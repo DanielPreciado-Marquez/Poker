@@ -104,6 +104,11 @@ namespace dpm
 		{
 			return 2;
 		}
+
+		constexpr std::array<Move, getNumberOfMoves()> getAllMoves()
+		{
+			return {0, 1};
+		}
 	}
 
 	using Hands = std::array<Card, PlayerIndices::getNumberOfPlayers()>;

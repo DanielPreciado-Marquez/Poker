@@ -12,6 +12,20 @@ namespace dpm
 
 		[[nodiscard]] Outcome getOutcome(const History &history) const override;
 
+		[[nodiscard]] float cfr(const std::array<Player *, PlayerIndices::getNumberOfPlayers()> &players,
+		                        PlayerIndex playerIndex,
+		                        const Hands &hands,
+		                        const History &history,
+		                        ReachProbabilities reachProbabilities,
+		                        int playerIndexToUpdate) const override;
+
+		[[nodiscard]] float cfr2(const std::array<Player *, PlayerIndices::getNumberOfPlayers()> &players,
+		                        PlayerIndex playerIndex,
+		                        const Hands &hands,
+		                        const History &history,
+		                        ReachProbabilities reachProbabilities,
+		                        int playerIndexToUpdate) const;
+
 	private:
 		std::array<std::shared_ptr<NodeBase>, Moves::getNumberOfMoves()> m_Children;
 

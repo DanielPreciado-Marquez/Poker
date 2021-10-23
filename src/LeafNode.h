@@ -8,12 +8,16 @@ namespace dpm
 	class LeafNode : public NodeBase
 	{
 	public:
-		LeafNode(State &&state);
+		explicit LeafNode(State &&state);
 
-		Outcome getOutcome(const History &history) const override;
+		[[nodiscard]] Outcome getOutcome(const History &history) const override;
 
-	private:
-		PlayerIndex m_Winner;
+		[[nodiscard]] float cfr(const std::array<Player *, PlayerIndices::getNumberOfPlayers()> &players,
+		                        PlayerIndex playerIndex,
+		                        const Hands &hands,
+		                        const History &history,
+		                        ReachProbabilities reachProbabilities,
+		                        int playerIndexToUpdate) const override;
 
 	};
 }

@@ -26,6 +26,18 @@ namespace dpm
 					                                                                               Stakes::StakeBegin));
 	}
 
+	float RootNode::trainPlayer(const std::array<Player *, PlayerIndices::getNumberOfPlayers()> &players,
+	                            PlayerIndex playerIndex, const Hands &hands, const History &history,
+	                            ReachProbabilities reachProbabilities, int playerIndexToUpdate) const
+	{
+		return getTreeFromHands(hands)->cfr(players,
+		                                    playerIndex,
+		                                    hands,
+		                                    history,
+		                                    reachProbabilities,
+		                                    playerIndexToUpdate);
+	}
+
 	InternalNode *RootNode::getTreeFromHands(const Hands &hands) const
 	{
 		return m_Trees.at(hands.at(PlayerIndices::Player1)).at(hands.at(PlayerIndices::Player2)).get();

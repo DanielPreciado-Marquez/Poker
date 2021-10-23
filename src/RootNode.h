@@ -12,8 +12,12 @@ namespace dpm
 
 		[[nodiscard]] Outcome getOutcome(const Hands &hands, const History &history) const;
 
-		// TODO
-		void train() const;
+		float trainPlayer(const std::array<Player *, PlayerIndices::getNumberOfPlayers()> &players,
+		                  PlayerIndex playerIndex,
+		                  const Hands &hands,
+		                  const History &history,
+		                  ReachProbabilities reachProbabilities,
+		                  int playerIndexToUpdate) const;
 
 	private:
 		// TODO Unused indices for same cards

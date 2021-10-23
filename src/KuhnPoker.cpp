@@ -56,15 +56,36 @@ namespace dpm
 			++i;
 			switchPlayerIndices();
 		}
+		resetPlayerIndices();
 		std::cout << i << std::endl;
 	}
 
-	void KuhnPoker::trainPlayers(const unsigned int iterations, const bool trainPlayerA, const bool trainPlayerB)
+	void KuhnPoker::trainPlayer(const unsigned int iterations,
+	                            PlayerIndex playerIndex,
+	                            const bool playAgainstOtherPlayer)
 	{
+		std::array<Player *, PlayerIndices::getNumberOfPlayers()> player{m_PlayerSlots.at(0).player,
+		                                                                 m_PlayerSlots.at(0).player};
+		if (playAgainstOtherPlayer)
+			player.at(1) = m_PlayerSlots.at(1).player;
+		else
+			playerIndex = -1;
+
+		auto regret = 0.0f;
 		for (auto i = 0u; i < iterations; ++i)
 		{
-
+			const auto hands = drawHands();
+			regret += m_GameTree.trainPlayer(player,
+			                                 PlayerIndices::Player1,
+			                                 hands,
+			                                 History{-1, -1, -1},
+			                                 ReachProbabilities{1.0f, 1.0f},
+			                                 playerIndex);
+			if (playAgainstOtherPlayer)
+				std::rotate(player.begin(), player.begin() + 1, player.end());
 		}
+		const auto average = regret / iterations;
+		resetPlayerIndices();
 	}
 
 	Hands KuhnPoker::drawHands()
@@ -77,6 +98,12 @@ namespace dpm
 	void KuhnPoker::switchPlayerIndices()
 	{
 		std::rotate(m_PlayerOrder.begin(), m_PlayerOrder.begin() + 1, m_PlayerOrder.end());
+	}
+
+	void KuhnPoker::resetPlayerIndices()
+	{
+		for (auto i = 0u; i < PlayerIndices::getNumberOfPlayers(); ++i)
+			m_PlayerOrder.at(i) = &m_PlayerSlots.at(i);
 	}
 
 	PlayerSlot *KuhnPoker::getWinner()

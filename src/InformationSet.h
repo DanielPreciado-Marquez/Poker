@@ -10,19 +10,29 @@ namespace dpm
 	class InformationSet
 	{
 	public:
+		static Strategy normalizeStrategy(const Strategy &strategy);
+
+		static void normalizeStrategyInplace(Strategy &strategy);
+
+	public:
 		InformationSet();
 
-		[[nodiscard]] const Strategy &getStrategy();
+		[[nodiscard]] const Strategy &getStrategy() const;
+
+		void updateCumulativeRegret(Move move, float regret);
+
+		void normalizeStrategy();
+
+		Strategy updateStrategy(float reachProbability);
 
 	private:
 		Strategy m_Strategy;
 		Strategy m_Cumulative_Regrets;
+		Strategy m_StrategySum;
 
 	private:
-		void normalizeStrategy();
 	};
 }
-
 
 
 #endif //KUHN_POKER_INFORMATIONSET_H

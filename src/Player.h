@@ -13,14 +13,12 @@ namespace dpm
 
 		Move getNextMove(Card card, const History &history);
 
+		[[nodiscard]] InformationSet &getInformationSet(Card card, const History &history);
 	private:
 		std::unordered_map<std::string, InformationSet> m_InformationSets;
 
 		std::mt19937 m_Rng;
 		std::uniform_real_distribution<float> m_Distribution;
-
-	private:
-		[[nodiscard]] InformationSet &getInformationSet(Card card, const History &history);
 
 	};
 }
