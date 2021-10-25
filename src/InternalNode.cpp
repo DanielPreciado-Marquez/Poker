@@ -99,25 +99,27 @@ namespace dpm
 		const auto strategy = informationSet.updateStrategy(reachProbabilities.at(playerIndex));
 		const auto nextPlayerIndex = static_cast<PlayerIndex>((playerIndex + 1) % PlayerIndices::getNumberOfPlayers());
 		std::array<float, Moves::getNumberOfMoves()> counterfactualValues{0.0f, 0.0f};
+		auto counterfactualSum = 0.0f;
 		for (const auto move: Moves::getAllMoves())
 		{
 			auto updatedHistory = history;
 			updatedHistory.at(getHistoryIndex()) = move;
 			auto nextReachProbabilities = reachProbabilities;
 			nextReachProbabilities.at(playerIndex) *= strategy.at(move);
-			counterfactualValues.at(move) = -m_Children.at(move)->cfr(players,
-			                                                          nextPlayerIndex,
-			                                                          hands,
-			                                                          updatedHistory,
-			                                                          nextReachProbabilities,
-			                                                          playerIndexToUpdate);
+			const float counterfactualValue = -m_Children.at(move)->cfr(players,
+			                                                            nextPlayerIndex,
+			                                                            hands,
+			                                                            updatedHistory,
+			                                                            nextReachProbabilities,
+			                                                            playerIndexToUpdate);
+			counterfactualSum += strategy.at(move) * counterfactualValue;
+			counterfactualValues.at(move) = counterfactualValue;
 		}
-		auto nodeValue = 0.0f;
-		for(auto i = 0u; i < Moves::getNumberOfMoves(); ++i)
-			nodeValue += counterfactualValues.at(i) * strategy.at(i);
 		for (const auto move: Moves::getAllMoves())
-			informationSet.updateCumulativeRegret(move, reachProbabilities.at(nextPlayerIndex) * (counterfactualValues.at(move) - nodeValue));
-		return nodeValue;
+			informationSet.updateCumulativeRegret(move,
+			                                      reachProbabilities.at(nextPlayerIndex) *
+			                                      (counterfactualValues.at(move) - counterfactualSum));
+		return counterfactualSum;
 	}
 
 	float InternalNode::cfr2(const std::array<Player *, PlayerIndices::getNumberOfPlayers()> &players,
@@ -148,14 +150,13 @@ namespace dpm
 			counterfactualSum += strategy.at(move) * counterfactualValue;
 			counterfactualValues.at(move) = counterfactualValue;
 		}
-		for (const auto move: Moves::getAllMoves())
-		{
 
-			const auto regret = counterfactualValues.at(move) - counterfactualSum;
-			const auto posRegret = std::max(0.0f, regret);
-			if (playerIndexToUpdate == -1 || playerIndexToUpdate == playerIndex)
-				informationSet.updateCumulativeRegret(move, posRegret);
-		}
+		if (playerIndexToUpdate == -1 || playerIndexToUpdate == playerIndex)
+			for (const auto move: Moves::getAllMoves())
+				informationSet.updateCumulativeRegret(move,
+				                                      std::max(0.0f, reachProbabilities.at(playerIndex) *
+				                                                     counterfactualValues.at(move) -
+				                                                     counterfactualSum));
 		informationSet.normalizeStrategy();
 		return counterfactualSum;
 	}
