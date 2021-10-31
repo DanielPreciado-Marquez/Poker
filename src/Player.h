@@ -1,8 +1,10 @@
 #ifndef KUHN_POKER_PLAYER_H
 #define KUHN_POKER_PLAYER_H
 
-#include "enums.h"
+#include "Card.h"
+#include "History.h"
 #include "InformationSet.h"
+#include "PlayerMove.h"
 
 namespace dpm
 {

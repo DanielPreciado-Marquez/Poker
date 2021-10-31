@@ -1,9 +1,9 @@
-#ifndef KUHN_POKER_INTERNALNODE_H
-#define KUHN_POKER_INTERNALNODE_H
+#ifndef KUHN_POKER_INTERNALNODE_H_
+#define KUHN_POKER_INTERNALNODE_H_
 
-#include "NodeBase.h"
+#include "Tree/NodeBase.h"
 
-namespace dpm
+namespace dpm::old
 {
 	class InternalNode : public NodeBase
 	{

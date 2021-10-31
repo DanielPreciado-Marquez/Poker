@@ -2,7 +2,7 @@
 
 namespace dpm
 {
-	Outcome::Outcome(PlayerIndex winner, Stake stake)
+	Outcome::Outcome(const PlayerIndex winner, const Cash stake)
 			: winner(winner)
 			, stake(stake)
 	{

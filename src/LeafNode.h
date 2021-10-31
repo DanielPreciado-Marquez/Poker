@@ -1,7 +1,7 @@
 #ifndef KUHN_POKER_LEAFNODE_H
-#define KUHN_POKER_LEAFNODE_H
+#define KUHN_POKER_OLD_LEAFNODE_H
 
-#include "NodeBase.h"
+#include "Tree/NodeBase.h"
 
 namespace dpm
 {

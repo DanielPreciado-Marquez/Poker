@@ -1,9 +1,9 @@
 #ifndef KUHN_POKER_ROOTNODE_H
-#define KUHN_POKER_ROOTNODE_H
+#define KUHN_POKER_OLD_ROOTNODE_H
 
 #include "InternalNode.h"
 
-namespace dpm
+namespace dpm::old
 {
 	class RootNode
 	{

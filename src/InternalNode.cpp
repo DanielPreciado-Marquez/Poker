@@ -115,10 +115,12 @@ namespace dpm
 			counterfactualSum += strategy.at(move) * counterfactualValue;
 			counterfactualValues.at(move) = counterfactualValue;
 		}
-		for (const auto move: Moves::getAllMoves())
-			informationSet.updateCumulativeRegret(move,
-			                                      reachProbabilities.at(nextPlayerIndex) *
-			                                      (counterfactualValues.at(move) - counterfactualSum));
+
+		if (playerIndexToUpdate == -1 || playerIndexToUpdate == playerIndex)
+			for (const auto move: Moves::getAllMoves())
+				informationSet.updateCumulativeRegret(move,
+				                                      reachProbabilities.at(nextPlayerIndex) *
+				                                      (counterfactualValues.at(move) - counterfactualSum));
 		return counterfactualSum;
 	}
 
