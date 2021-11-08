@@ -97,47 +97,6 @@ namespace dpm
 		return 0;
 	}
 
-//	TurnOptions<GameMode::KuhnPoker> RuleSet<GameMode::KuhnPoker>::getTurnOptions(const History &history)
-//	{
-//		const auto roundNumber = history.moves.size();
-//		switch (roundNumber)
-//		{
-//			case 0:
-//				return TurnOption::endOfRound();
-//			case 1:
-//			{
-//				const auto &roundHistory = history.moves.at(0);
-//				switch (roundHistory.size())
-//				{
-//					case 0:
-//						return TurnOption::nextOptions({PlayerMove::Check(), PlayerMove::Bet(1)});
-//					case 1:
-//					{
-//						switch (roundHistory.at(0).playerAction)
-//						{
-//							case PlayerAction::Bet:
-//								return TurnOption::nextOptions({PlayerMove::Fold(), PlayerMove::Call(1)});
-//							case PlayerAction::Check:
-//								return TurnOption::nextOptions({PlayerMove::Check(), PlayerMove::Bet(1)});
-//							default:
-//								return TurnOption::endOfGame();
-//						}
-//					}
-//					default:
-//						return TurnOption::endOfRound();
-//				}
-//			}
-//			case 2:
-//				if (history.moves.at(0).at(0).playerAction == PlayerAction::Check &&
-//				    history.moves.at(0).at(1).playerAction == PlayerAction::Bet)
-//					return TurnOption::nextOptions({PlayerMove::Fold(), PlayerMove::Call(1)});
-//				else
-//					return TurnOption::endOfGame();
-//			default:
-//				return TurnOption::endOfGame();
-//		}
-//	}
-
 	RuleSet<GameMode::KuhnPoker>::RuleSet(const Cash smallBlind, const Cash bigBlind)
 			: m_BigBlind(bigBlind)
 			, m_SmallBlind(smallBlind)

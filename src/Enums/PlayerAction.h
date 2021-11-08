@@ -23,7 +23,7 @@ namespace dpm
 		return static_cast<PlayerActionIndex>(TPlayerAction);
 	}
 
-	PlayerActionIndex  getPlayerActionIndex(PlayerAction playerAction);
+	PlayerActionIndex getPlayerActionIndex(PlayerAction playerAction);
 
 	std::string toString(PlayerAction playerAction);
 }

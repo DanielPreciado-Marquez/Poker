@@ -34,6 +34,9 @@ namespace dpm
 	};
 
 	template<GameMode TGameMode>
+	bool operator<(const Hand<TGameMode> &handA, const Hand<TGameMode> &handB);
+
+	template<GameMode TGameMode>
 	std::ostream &operator<<(std::ostream &ostream, const Hand<TGameMode> &hand);
 
 	// --- Implementation ---
@@ -126,6 +129,20 @@ namespace dpm
 		for (auto i = 0u; i < cards.size(); ++i)
 			ss << cards.at(i).toString();
 		return ss.str();
+	}
+
+	template<GameMode TGameMode>
+	bool operator<(const Hand<TGameMode> &handA, const Hand<TGameMode> &handB)
+	{
+		auto sumA = 0;
+		auto sumB = 0;
+		// TODO compare Hands
+		for (const auto &card: handA.cards)
+			sumA += getCardRankValue(card.getRank());
+		for (const auto &card: handB.cards)
+			sumB += getCardRankValue(card.getRank());
+
+		return sumA < sumB;
 	}
 
 	template<GameMode TGameMode>

@@ -11,33 +11,33 @@ namespace dpm
 	class InformationSet
 	{
 	public:
-		using Strategy = std::array<float, RuleSet<TGameMode>::getNumberOfPossibleActions()>;
+		using TurnStrategy = std::array<float, RuleSet<TGameMode>::getNumberOfPossibleActions()>;
 
 	public:
-		static Strategy normalizeStrategy(const Strategy &strategy);
+		static TurnStrategy normalizeStrategy(const TurnStrategy &strategy);
 
-		static void normalizeStrategyInplace(Strategy &strategy);
+		static void normalizeStrategyInplace(TurnStrategy &strategy);
 
 	public:
 		InformationSet();
 
-		[[nodiscard]] const Strategy &getStrategy() const;
+		[[nodiscard]] const TurnStrategy &getStrategy() const;
 
-		void updateCumulativeRegret(PlayerMove move, float regret);
+		void updateCumulativeRegret(unsigned int moveIndex, float regret);
 
 		void normalizeStrategy();
 
-		Strategy updateStrategy(float reachProbability);
+		TurnStrategy updateStrategy(float reachProbability);
 
 	private:
-		Strategy m_Strategy;
-		Strategy m_Cumulative_Regrets;
-		Strategy m_StrategySum;
+		TurnStrategy m_Strategy;
+		TurnStrategy m_Cumulative_Regrets;
+		TurnStrategy m_StrategySum;
 
 	};
 
 	template<GameMode TGameMode>
-	typename InformationSet<TGameMode>::Strategy InformationSet<TGameMode>::normalizeStrategy(const Strategy &strategy)
+	typename InformationSet<TGameMode>::TurnStrategy InformationSet<TGameMode>::normalizeStrategy(const TurnStrategy &strategy)
 	{
 		auto normalizedStrategy = strategy;
 		normalizeStrategyInplace(normalizedStrategy);
@@ -45,7 +45,7 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	void InformationSet<TGameMode>::normalizeStrategyInplace(Strategy &strategy)
+	void InformationSet<TGameMode>::normalizeStrategyInplace(TurnStrategy &strategy)
 	{
 		auto sum = 0.0f;
 		for (const auto probability: strategy)
@@ -71,15 +71,15 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	const typename InformationSet<TGameMode>::Strategy &InformationSet<TGameMode>::getStrategy() const
+	const typename InformationSet<TGameMode>::TurnStrategy &InformationSet<TGameMode>::getStrategy() const
 	{
 		return m_Strategy;
 	}
 
 	template<GameMode TGameMode>
-	void InformationSet<TGameMode>::updateCumulativeRegret(const PlayerMove move, const float regret)
+	void InformationSet<TGameMode>::updateCumulativeRegret(const unsigned int moveIndex, const float regret)
 	{
-		m_Cumulative_Regrets.at(move) += regret;
+		m_Cumulative_Regrets.at(moveIndex) += regret;
 	}
 
 	template<GameMode TGameMode>
@@ -100,9 +100,9 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	typename InformationSet<TGameMode>::Strategy InformationSet<TGameMode>::updateStrategy(const float reachProbability)
+	typename InformationSet<TGameMode>::TurnStrategy InformationSet<TGameMode>::updateStrategy(const float reachProbability)
 	{
-		Strategy strategy;
+		TurnStrategy strategy;
 		for (auto i = 0u; i < m_Cumulative_Regrets.size(); ++i)
 			strategy.at(i) = std::max(0.0f, m_Cumulative_Regrets.at(i));
 		normalizeStrategyInplace(strategy);

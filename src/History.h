@@ -35,6 +35,8 @@ namespace dpm
 
 		[[nodiscard]] TurnOptions getPossibleMoves() const;
 
+		[[nodiscard]] std::string toString(PlayerIndex playerIndex) const;
+
 	private:
 		std::vector<RoundHistory> m_RoundHistories;
 		State m_FinalState;
@@ -73,7 +75,7 @@ namespace dpm
 			}
 			else if (dealerMove.dealerAction == DealerAction::DrawCommunityCards)
 			{
-				// TODO
+				// TODO apply drawn community cards
 			}
 		}
 		else if (move.getMoveType() == MoveType::PlayerMove)
@@ -178,6 +180,16 @@ namespace dpm
 	int History<TGameMode>::getNextMoveIndex() const
 	{
 		return m_NextMove;
+	}
+
+	template<GameMode TGameMode>
+	std::string History<TGameMode>::toString(const PlayerIndex playerIndex) const
+	{
+		std::stringstream ss;
+		for (auto i = 0u; i < m_CurrentRound; ++i)
+			ss << m_RoundHistories.at(i).toString(playerIndex);
+		ss << m_RoundHistories.at(m_CurrentRound).toString(playerIndex, m_NextMove);
+		return ss.str();
 	}
 }
 

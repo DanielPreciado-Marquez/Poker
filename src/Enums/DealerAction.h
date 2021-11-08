@@ -9,6 +9,8 @@ namespace dpm
 		DrawPlayerCards,
 		DrawCommunityCards
 	};
+
+	[[nodiscard]] std::string toString(DealerAction dealerAction);
 }
 
 #endif //POKER_DEALERACTION_H

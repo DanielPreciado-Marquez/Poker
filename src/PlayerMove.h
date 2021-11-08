@@ -22,6 +22,8 @@ namespace dpm
 		explicit PlayerMove(PlayerAction playerAction = PlayerAction::NoAction, Cash stake = 0);
 
 		[[nodiscard]] MoveType getMoveType() const override;
+
+		[[nodiscard]] std::string toString() const;
 	};
 }
 

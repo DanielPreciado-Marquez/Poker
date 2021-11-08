@@ -6,6 +6,7 @@
 #include "Hand.h"
 #include "PlayerMove.h"
 #include "RuleSet/RuleSet.h"
+#include "Types/PlayerIndex.h"
 
 namespace dpm
 {
@@ -19,6 +20,10 @@ namespace dpm
 		explicit RoundHistory(DealerMove <TGameMode> dealerMove);
 
 		void addPlayerMove(const PlayerMove &playerMove, unsigned int index);
+
+		[[nodiscard]] std::string toString(PlayerIndex playerIndex) const;
+
+		[[nodiscard]] std::string toString(PlayerIndex playerIndex, unsigned int numberMoves) const;
 	};
 
 	// --- Implementation ---
@@ -37,6 +42,26 @@ namespace dpm
 			playerMoves.emplace_back(playerMove);
 		else
 			playerMoves.emplace(playerMoves.begin() + index, playerMove);
+	}
+
+	template<GameMode TGameMode>
+	std::string RoundHistory<TGameMode>::toString(const PlayerIndex playerIndex) const
+	{
+		std::stringstream ss;
+		ss << dealerMove.toString(playerIndex);
+		for (const auto &playerMove: playerMoves)
+			ss << playerMove.toString();
+		return ss.str();
+	}
+
+	template<GameMode TGameMode>
+	std::string RoundHistory<TGameMode>::toString(const PlayerIndex playerIndex, const unsigned int numberMoves) const
+	{
+		std::stringstream ss;
+		ss << dealerMove.toString(playerIndex);
+		for (auto i = 0u; i < numberMoves; ++i)
+			ss << playerMoves.at(i).toString();
+		return ss.str();
 	}
 }
 

@@ -11,6 +11,7 @@ add_executable(poker
         src/Card.h
         src/Enums/CardRank.h
         src/Enums/CardSuit.h
+        src/Enums/DealerAction.cpp
         src/Enums/DealerAction.h
         src/Enums/GameMode.h
         src/Enums/MoveType.h
@@ -23,17 +24,22 @@ add_executable(poker
         src/InformationSet.h
         src/PlayerMove.cpp
         src/PlayerMove.h
+        src/PlayerSlot.cpp
+        src/PlayerSlot.h
         src/Move.cpp
         src/Move.h
         src/Outcome.cpp
         src/Outcome.h
-        #src/Player.cpp
-        #src/Player.h
+        src/Player.cpp
+        src/Player.h
         src/Poker.h
         src/RoundHistory.h
         src/RuleSet/RuleSet.h
         src/RuleSet/RuleSetKuhnPoker.h
         src/RuleSet/RuleSets.h
+        src/Strategy.h
+        src/StrategyBase.cpp
+        src/StrategyBase.h
         src/Tree/InternalNode.h
         src/Tree/LeafNode.h
         src/Tree/NodeBase.h

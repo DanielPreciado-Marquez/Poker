@@ -71,6 +71,11 @@ namespace dpm
 			return m_Suit < card.m_Suit;
 	}
 
+	CardRank Card::getRank() const
+	{
+		return m_Rank;
+	}
+
 	bool Card::isEmpty() const
 	{
 		return m_Rank == CardRank::NoRank && m_Suit == CardSuit::NoSuit;

@@ -39,6 +39,11 @@ namespace dpm
 	{
 	}
 
+	std::string PlayerMove::toString() const
+	{
+		return ::dpm::toString(playerAction) + std::to_string(stake);
+	}
+
 	MoveType PlayerMove::getMoveType() const
 	{
 		return MoveType::PlayerMove;

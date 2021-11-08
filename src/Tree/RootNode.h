@@ -18,6 +18,12 @@ namespace dpm
 
 		void generateChildren(RuleSet<TGameMode> *ruleSet);
 
+		float cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+		          PlayerIndex playerIndex,
+		          History<TGameMode> &history,
+		          std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+		          int playerIndexToUpdate) const;
+
 	private:
 		[[nodiscard]] static bool
 		handsContainCard(const std::array<Hand<TGameMode>, RuleSet<TGameMode>::getNumberOfPlayers()> &hands,
@@ -103,6 +109,23 @@ namespace dpm
 			m_HandsToChildrenMapping.emplace(ss.str(), child);
 		}
 		int i = 1;
+	}
+
+	template<GameMode TGameMode>
+	float RootNode<TGameMode>::cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+	                               PlayerIndex playerIndex,
+	                               History<TGameMode> &history,
+	                               std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+	                               int playerIndexToUpdate) const
+	{
+		std::stringstream ss;
+		for (const auto &hand: history.getFinalState().playerCards)
+			ss << hand;
+		return m_HandsToChildrenMapping.at(ss.str())->cfr(players,
+		                                                  playerIndex,
+		                                                  history,
+		                                                  reachProbabilities,
+		                                                  playerIndexToUpdate);
 	}
 }
 

@@ -133,6 +133,8 @@ namespace dpm
 
 		bool operator<(const Card &card) const;
 
+		[[nodiscard]] CardRank getRank() const;
+
 		[[nodiscard]] bool isEmpty() const;
 
 		[[nodiscard]] std::string toString() const;

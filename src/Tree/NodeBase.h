@@ -24,6 +24,12 @@ namespace dpm
 
 		virtual void generateChildren(const TurnOptions<TGameMode> &turnOptions, History<TGameMode> &history) = 0;
 
+		virtual float cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+		                  PlayerIndex playerIndex,
+		                  History<TGameMode> &history,
+		                  std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+		                  int playerIndexToUpdate) const = 0;
+
 	protected:
 		State<TGameMode> m_State;
 

@@ -18,10 +18,20 @@ namespace dpm
 
 		void generateChildren(const TurnOptions<TGameMode> &turnOptions, History<TGameMode> &history) override;
 
+		[[nodiscard]] Outcome getOutcome() const;
+
+		float cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+		          PlayerIndex playerIndex,
+		          History<TGameMode> &history,
+		          std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+		          int playerIndexToUpdate) const override;
+
 	private:
 		static std::vector<std::unique_ptr<LeafNode>> s_Nodes;
 
 	};
+
+	// --- Implementation ---
 
 	template<GameMode TGameMode>
 	std::vector<std::unique_ptr<LeafNode<TGameMode>>> LeafNode<TGameMode>::s_Nodes = {};
@@ -42,6 +52,60 @@ namespace dpm
 	LeafNode<TGameMode>::LeafNode(State<TGameMode> &&state)
 			: NodeBase<TGameMode>(std::move(state))
 	{
+	}
+
+	template<GameMode TGameMode>
+	Outcome LeafNode<TGameMode>::getOutcome() const
+	{
+		Cash pot = 0;
+		for (const auto stake: this->m_State.stakes)
+			pot += stake;
+
+		PlayerIndex winner = PlayerIndices::NoPlayer;
+		auto allButOneFolded = true;
+		for (auto indexToCheck = 0u; indexToCheck < this->m_State.previousPlayerActions.size(); ++indexToCheck)
+		{
+			if (this->m_State.previousPlayerActions.at(indexToCheck) != PlayerAction::Fold)
+			{
+				if (winner == PlayerIndices::NoPlayer)
+					winner = indexToCheck;
+				else
+					allButOneFolded = false;
+			}
+		}
+
+		if (!allButOneFolded)
+		{
+			winner = 0;
+			auto bestHand = this->m_State.playerCards.at(winner);
+			for (auto indexToCheck = 1u; indexToCheck < this->m_State.playerCards.size(); ++indexToCheck)
+			{
+				const auto &handToCheck = this->m_State.playerCards.at(indexToCheck);
+				if (bestHand < handToCheck)
+				{
+					winner = indexToCheck;
+					bestHand = handToCheck;
+				}
+			}
+		}
+
+		return {winner, pot};
+	}
+
+	template<GameMode TGameMode>
+	float LeafNode<TGameMode>::cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+	                               const PlayerIndex playerIndex,
+	                               History<TGameMode> &history,
+	                               std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+	                               const int playerIndexToUpdate) const
+	{
+		// TODO more than 2 players
+		const auto outcome = getOutcome();
+		const auto playerStake = this->m_State.stakes.at(playerIndex);
+		if (outcome.winner == playerIndex)
+			return float(outcome.stake - playerStake);
+		else
+			return -float(playerStake);
 	}
 }
 

@@ -29,6 +29,10 @@ namespace dpm
 		return static_cast<CardRankValue>(TCardRank);
 	}
 
+	inline CardRankValue getCardRankValue(CardRank cardRank)
+	{
+		return static_cast<CardRankValue>(cardRank);
+	}
 }
 
 #endif //KUHN_POKER_CARDRANK_H
