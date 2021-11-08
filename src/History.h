@@ -102,7 +102,7 @@ namespace dpm
 	{
 		constexpr unsigned int numberOfPlayers = RuleSet::getNumberOfPlayers();
 		bool allChecked = true;
-		bool someoneBet = false;
+		PlayerIndex lastBet = PlayerIndices::NoPlayer;
 		PlayerIndex nextPlayerIndex = PlayerIndices::NoPlayer;
 
 		for (auto i = 1u; i <= numberOfPlayers; ++i)
@@ -120,14 +120,17 @@ namespace dpm
 				nextPlayerIndex = indexToCheck;
 
 			if (playerAction == PlayerAction::Bet)
-				someoneBet = true;
+				lastBet = indexToCheck;
 		}
+
+		if (lastBet == nextPlayerIndex)
+			nextPlayerIndex = PlayerIndices::NoPlayer;
 
 		// round ended
 		if (allChecked || nextPlayerIndex == PlayerIndices::NoPlayer)
 		{
 			constexpr auto numberOfRounds = RuleSet::getNumberOfRounds();
-			if (m_CurrentRound >= numberOfRounds)
+			if (m_CurrentRound + 1 >= numberOfRounds)
 				return TurnOptions();
 			else
 			{
@@ -137,7 +140,7 @@ namespace dpm
 		}
 
 		// TODO stakes
-		if (!someoneBet && (m_CurrentRound == 0 || RuleSet::canCheckInFirstRound()))
+		if (lastBet == PlayerIndices::NoPlayer && (m_CurrentRound != 0 || RuleSet::canCheckInFirstRound()))
 		{
 			// check, bet
 			return TurnOptions(nextPlayerIndex,
