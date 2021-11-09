@@ -6,6 +6,6 @@ int main()
 	dpm::Player playerB;
 	dpm::Poker<dpm::GameMode::KuhnPoker> poker;
 	poker.setPlayers({&playerA, &playerB});
-	poker.trainPlayer(1000, 0, false);
+	poker.trainPlayer(10000, 0, false);
 	return 0;
 }
