@@ -67,8 +67,9 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	float Poker<TGameMode>::trainPlayer(const unsigned int iterations, const PlayerIndex playerIndex,
-	                                   const bool playAgainstOtherPlayers)
+	float Poker<TGameMode>::trainPlayer(const unsigned int iterations,
+	                                    const PlayerIndex playerIndex,
+	                                    const bool playAgainstOtherPlayers)
 	{
 		constexpr auto numberOfPlayers = RuleSet<TGameMode>::getNumberOfPlayers();
 		std::array<Player *, numberOfPlayers> players;
@@ -79,6 +80,8 @@ namespace dpm
 		else
 			for (auto i = 0u; i < numberOfPlayers; ++i)
 				players.at(i) = m_PlayerSlots.at(playerIndex).player;
+
+		const auto playerIndexToUpdate = playAgainstOtherPlayers ? playerIndex : -1;
 
 		auto regret = 0.0f;
 		for (auto i = 0u; i < iterations; ++i)
@@ -92,7 +95,7 @@ namespace dpm
 			                         PlayerIndices::Player1,
 			                         history,
 			                         reachProbabilities,
-			                         playerIndex);
+			                         playerIndexToUpdate);
 			if (playAgainstOtherPlayers)
 				std::rotate(players.begin(), players.begin() + 1, players.end());
 		}
