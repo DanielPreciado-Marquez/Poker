@@ -14,7 +14,7 @@ namespace dpm
 	private:
 		using DealerMove = DealerMove<TGameMode>;
 		using RuleSet = RuleSet<TGameMode>;
-		using PossiblePlayerMoves = std::array<PlayerMove, 3>;
+		using PossiblePlayerMoves = std::array<PlayerMove, NUMBER_OF_PLAYER_ACTIONS>;
 
 	public:
 		PlayerIndex nextPlayer;

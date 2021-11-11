@@ -157,8 +157,8 @@ namespace dpm
 			{
 				return TurnOptions(nextPlayerIndex,
 				                   {PlayerMove{PlayerAction::Call, 1},
-				                    PlayerMove{PlayerAction::Fold, 0},
-				                    PlayerMove{}});
+				                    PlayerMove{},
+				                    PlayerMove{PlayerAction::Fold, 0}});
 			}
 			else
 			{

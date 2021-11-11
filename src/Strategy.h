@@ -14,7 +14,8 @@ namespace dpm
 		Strategy();
 
 		InformationSet<TGameMode> &getInformationSet(PlayerIndex playerIndex,
-		                                             const History<TGameMode> &history);
+		                                             const History<TGameMode> &history,
+		                                             const TurnOptions<TGameMode> &turnOptions);
 
 	private:
 		std::unordered_map<std::string, InformationSet<TGameMode>> m_InformationSets;
@@ -29,12 +30,13 @@ namespace dpm
 
 	template<GameMode TGameMode>
 	InformationSet<TGameMode> &Strategy<TGameMode>::getInformationSet(const PlayerIndex playerIndex,
-	                                                                  const History<TGameMode> &history)
+	                                                                  const History<TGameMode> &history,
+	                                                                  const TurnOptions<TGameMode> &turnOptions)
 	{
 		const auto key = history.toString(playerIndex);
 		auto informationSetIterator = m_InformationSets.find(key);
 		if (informationSetIterator == m_InformationSets.end())
-			informationSetIterator = m_InformationSets.emplace(key, InformationSet<TGameMode>()).first;
+			informationSetIterator = m_InformationSets.emplace(key, InformationSet<TGameMode>(turnOptions)).first;
 		return informationSetIterator->second;
 	}
 }

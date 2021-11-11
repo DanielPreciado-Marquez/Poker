@@ -19,7 +19,8 @@ namespace dpm
 
 		template<GameMode TGameMode>
 		[[nodiscard]] InformationSet<TGameMode> &getInformationSet(PlayerIndex playerIndex,
-		                                                           const History<TGameMode> &history);
+		                                                           const History<TGameMode> &history,
+		                                                           const TurnOptions<TGameMode> &turnOptions);
 
 	private:
 		std::unordered_map<GameMode, std::unique_ptr<StrategyBase>> m_Strategies;
@@ -48,13 +49,14 @@ namespace dpm
 
 	template<GameMode TGameMode>
 	InformationSet<TGameMode> &Player::getInformationSet(const PlayerIndex playerIndex,
-	                                                     const History<TGameMode> &history)
+	                                                     const History<TGameMode> &history,
+	                                                     const TurnOptions<TGameMode> &turnOptions)
 	{
 		auto strategyItr = m_Strategies.find(TGameMode);
 		if (strategyItr == m_Strategies.end())
 			strategyItr = m_Strategies.emplace(TGameMode, std::make_unique<Strategy<TGameMode>>()).first;
 		auto strategy = dynamic_cast<Strategy<TGameMode> *>(strategyItr->second.get());
-		return strategy->getInformationSet(playerIndex, history);
+		return strategy->getInformationSet(playerIndex, history, turnOptions);
 	}
 
 }

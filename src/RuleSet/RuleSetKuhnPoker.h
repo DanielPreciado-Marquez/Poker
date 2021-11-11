@@ -24,8 +24,6 @@ namespace dpm
 
 		static constexpr std::array<Card, 3> getAllCards();
 
-		static constexpr unsigned int getNumberOfPossibleActions();
-
 		static constexpr unsigned int getNumberOfRounds();
 
 		static constexpr int getNumberOfRaises();
@@ -70,11 +68,6 @@ namespace dpm
 	constexpr std::array<Card, 3> RuleSet<GameMode::KuhnPoker>::getAllCards()
 	{
 		return {Card::ClubJack(), Card::ClubQueen(), Card::ClubKing()};
-	}
-
-	constexpr unsigned int RuleSet<GameMode::KuhnPoker>::getNumberOfPossibleActions()
-	{
-		return 2;
 	}
 
 	constexpr unsigned int RuleSet<GameMode::KuhnPoker>::getNumberOfRounds()

@@ -5,6 +5,8 @@ namespace dpm
 {
 	using PlayerActionIndex = std::int8_t;
 
+	constexpr unsigned int NUMBER_OF_PLAYER_ACTIONS = 3u;
+
 	enum class PlayerAction : PlayerActionIndex
 	{
 		NoAction = -1,

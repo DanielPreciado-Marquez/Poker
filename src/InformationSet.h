@@ -11,21 +11,14 @@ namespace dpm
 	class InformationSet
 	{
 	public:
-		using TurnStrategy = std::array<float, RuleSet<TGameMode>::getNumberOfPossibleActions()>;
+		using TurnStrategy = std::array<float, NUMBER_OF_PLAYER_ACTIONS>;
 
 	public:
-		static TurnStrategy normalizeStrategy(const TurnStrategy &strategy);
-
-		static void normalizeStrategyInplace(TurnStrategy &strategy);
-
-	public:
-		InformationSet();
+		explicit InformationSet(const TurnOptions <TGameMode> &turnOptions);
 
 		[[nodiscard]] const TurnStrategy &getStrategy() const;
 
 		void updateCumulativeRegret(unsigned int moveIndex, float regret);
-
-		void normalizeStrategy();
 
 		TurnStrategy updateStrategy(float reachProbability);
 
@@ -34,40 +27,27 @@ namespace dpm
 		TurnStrategy m_Cumulative_Regrets;
 		TurnStrategy m_StrategySum;
 
+		std::array<PlayerAction, NUMBER_OF_PLAYER_ACTIONS> m_PlayerActions;
+
+	private:
+		void applyInitialStrategy(TurnStrategy &turnStrategy) const;
+
+		void normalizeStrategyInplace(TurnStrategy &strategy);
+
+		TurnStrategy normalizeStrategy(const TurnStrategy &strategy);
+
 	};
 
 	template<GameMode TGameMode>
-	typename InformationSet<TGameMode>::TurnStrategy InformationSet<TGameMode>::normalizeStrategy(const TurnStrategy &strategy)
-	{
-		auto normalizedStrategy = strategy;
-		normalizeStrategyInplace(normalizedStrategy);
-		return normalizedStrategy;
-	}
-
-	template<GameMode TGameMode>
-	void InformationSet<TGameMode>::normalizeStrategyInplace(TurnStrategy &strategy)
-	{
-		auto sum = 0.0f;
-		for (const auto probability: strategy)
-			sum += probability;
-		if (sum > 0)
-			for (float &probability: strategy)
-				probability /= sum;
-		else
-		{
-			const auto uniformProbability = 1.0f / float(strategy.size());
-			for (float &probability: strategy)
-				probability = uniformProbability;
-		}
-	}
-
-	template<GameMode TGameMode>
-	InformationSet<TGameMode>::InformationSet()
+	InformationSet<TGameMode>::InformationSet(const TurnOptions <TGameMode> &turnOptions)
 			: m_Strategy()
 			, m_Cumulative_Regrets()
 			, m_StrategySum()
+			, m_PlayerActions()
 	{
-		normalizeStrategy();
+		for (auto i = 0u; i < m_PlayerActions.size(); ++i)
+			m_PlayerActions.at(i) = turnOptions.possiblePlayerMoves.at(i).playerAction;
+		applyInitialStrategy(m_Strategy);
 	}
 
 	template<GameMode TGameMode>
@@ -83,26 +63,11 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	void InformationSet<TGameMode>::normalizeStrategy()
-	{
-		auto sum = 0.0f;
-		for (const auto regret: m_Cumulative_Regrets)
-			sum += regret;
-		if (sum > 0)
-			for (auto i = 0u; i < m_Strategy.size(); ++i)
-				m_Strategy.at(i) = m_Cumulative_Regrets.at(i) / sum;
-		else
-		{
-			const auto uniformProbability = 1.0f / float(m_Strategy.size());
-			for (float &probability: m_Strategy)
-				probability = uniformProbability;
-		}
-	}
-
-	template<GameMode TGameMode>
-	typename InformationSet<TGameMode>::TurnStrategy InformationSet<TGameMode>::updateStrategy(const float reachProbability)
+	typename InformationSet<TGameMode>::TurnStrategy
+	InformationSet<TGameMode>::updateStrategy(const float reachProbability)
 	{
 		TurnStrategy strategy;
+		auto sum = 0.0f;
 		for (auto i = 0u; i < m_Cumulative_Regrets.size(); ++i)
 			strategy.at(i) = std::max(0.0f, m_Cumulative_Regrets.at(i));
 		normalizeStrategyInplace(strategy);
@@ -110,6 +75,41 @@ namespace dpm
 			m_StrategySum.at(i) += reachProbability * strategy.at(i);
 		m_Strategy = normalizeStrategy(m_StrategySum);
 		return strategy;
+	}
+
+	template<GameMode TGameMode>
+	void InformationSet<TGameMode>::applyInitialStrategy(TurnStrategy &turnStrategy) const
+	{
+		auto numActions = 0.0f;
+		for (auto &playerAction: m_PlayerActions)
+			if (playerAction != PlayerAction::NoAction)
+				++numActions;
+		auto probability = 1.0f / numActions;
+		for (auto i = 0u; i < m_PlayerActions.size(); ++i)
+			if (m_PlayerActions.at(i) != PlayerAction::NoAction)
+				turnStrategy.at(i) = probability;
+	}
+
+	template<GameMode TGameMode>
+	void InformationSet<TGameMode>::normalizeStrategyInplace(TurnStrategy &strategy)
+	{
+		auto sum = 0.0f;
+		for (const auto probability: strategy)
+			sum += probability;
+		if (sum > 0)
+			for (float &probability: strategy)
+				probability /= sum;
+		else
+			applyInitialStrategy(strategy);
+	}
+
+	template<GameMode TGameMode>
+	typename InformationSet<TGameMode>::TurnStrategy
+	InformationSet<TGameMode>::normalizeStrategy(const TurnStrategy &strategy)
+	{
+		auto normalizedStrategy = strategy;
+		normalizeStrategyInplace(normalizedStrategy);
+		return normalizedStrategy;
 	}
 }
 
