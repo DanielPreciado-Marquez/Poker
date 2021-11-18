@@ -120,9 +120,15 @@ namespace dpm
 
 		[[nodiscard]] static constexpr Card SpadeAce();
 
-		static std::string toString(CardSuit cardSuit);
+		[[nodiscard]] static std::string toString(CardSuit cardSuit);
 
-		static std::string toString(CardRank cardRank);
+		[[nodiscard]] static std::string toString(CardRank cardRank);
+
+		[[nodiscard]] static CardSuit parseCardSuit(std::string_view suitString);
+
+		[[nodiscard]] static CardRank parseCardRank(std::string_view rankString);
+
+		[[nodiscard]] static Card parseCard(std::string_view cardString);
 
 	public:
 		constexpr Card();

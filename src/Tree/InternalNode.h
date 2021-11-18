@@ -3,6 +3,7 @@
 
 #include "Enums/GameMode.h"
 #include "RuleSet/RuleSet.h"
+#include "Tree/DecisionNode.h"
 #include "Tree/LeafNode.h"
 #include "Tree/NodeBase.h"
 
@@ -73,12 +74,13 @@ namespace dpm
 			const auto nextTurnOptions = history.getPossibleMoves();
 			if (nextTurnOptions.nextPlayer == PlayerIndices::Dealer)
 			{
-				// TODO
+				auto child = ChanceNode<TGameMode>::createChanceNode(std::move(childState));
+				m_Children.at(i) = child;
+				child->generateChildren(nextTurnOptions, history);
 			}
 			else if (nextTurnOptions.nextPlayer == PlayerIndices::NoPlayer)
 			{
-				auto child = LeafNode<TGameMode>::createLeafNode(std::move(childState));
-				m_Children.at(i) = child;
+				m_Children.at(i) = LeafNode<TGameMode>::createLeafNode(std::move(childState));
 			}
 			else
 			{

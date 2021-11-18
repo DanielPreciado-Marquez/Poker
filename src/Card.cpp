@@ -4,7 +4,7 @@ namespace dpm
 {
 	std::string Card::toString(const CardSuit cardSuit)
 	{
-		switch(cardSuit)
+		switch (cardSuit)
 		{
 			case CardSuit::NoSuit:
 				return "N";
@@ -23,7 +23,7 @@ namespace dpm
 
 	std::string Card::toString(const CardRank cardRank)
 	{
-		switch(cardRank)
+		switch (cardRank)
 		{
 			case CardRank::NoRank:
 				return "N";
@@ -56,6 +56,78 @@ namespace dpm
 			default:
 				return "X";
 		}
+	}
+
+	CardSuit Card::parseCardSuit(const std::string_view suitString)
+	{
+		if (suitString.empty())
+			return CardSuit::NoSuit;
+		switch (suitString.at(0))
+		{
+			case 'c':
+			case 'C':
+				return CardSuit::Club;
+			case 'd':
+			case 'D':
+				return CardSuit::Diamond;
+			case 'h':
+			case 'H':
+				return CardSuit::Heart;
+			case 's':
+			case 'S':
+				return CardSuit::Spade;
+			default:
+				return CardSuit::NoSuit;
+		}
+	}
+
+	CardRank Card::parseCardRank(const std::string_view rankString)
+	{
+		if (rankString.empty())
+			return CardRank::NoRank;
+		switch (rankString.at(0))
+		{
+			case '2':
+				return CardRank::Two;
+			case '3':
+				return CardRank::Three;
+			case '4':
+				return CardRank::Four;
+			case '5':
+				return CardRank::Five;
+			case '6':
+				return CardRank::Six;
+			case '7':
+				return CardRank::Seven;
+			case '8':
+				return CardRank::Eight;
+			case '9':
+				return CardRank::Nine;
+			case 't':
+			case 'T':
+				return CardRank::Ten;
+			case 'j':
+			case 'J':
+				return CardRank::Jack;
+			case 'q':
+			case 'Q':
+				return CardRank::Queen;
+			case 'k':
+			case 'K':
+				return CardRank::King;
+			case 'a':
+			case 'A':
+				return CardRank::Ace;
+			default:
+				return CardRank::NoRank;
+		}
+	}
+
+	Card Card::parseCard(const std::string_view cardString)
+	{
+		if (cardString.size() < 2)
+			return NoCard();
+		return {parseCardSuit(cardString.substr(0, 1)), parseCardRank(cardString.substr(1, 1))};
 	}
 
 	bool Card::operator==(const Card &card) const

@@ -35,6 +35,8 @@ namespace dpm
 
 		[[nodiscard]] TurnOptions getPossibleMoves() const;
 
+		[[nodiscard]] std::vector<Card> getLeftCards() const;
+
 		[[nodiscard]] std::string toString(PlayerIndex playerIndex) const;
 
 	private:
@@ -60,6 +62,18 @@ namespace dpm
 	const State<TGameMode> &History<TGameMode>::getFinalState() const
 	{
 		return m_FinalState;
+	}
+
+	template<GameMode TGameMode>
+	int History<TGameMode>::getCurrentRoundIndex() const
+	{
+		return m_CurrentRound;
+	}
+
+	template<GameMode TGameMode>
+	int History<TGameMode>::getNextMoveIndex() const
+	{
+		return m_NextMove;
 	}
 
 	template<GameMode TGameMode>
@@ -171,15 +185,16 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	int History<TGameMode>::getCurrentRoundIndex() const
+	std::vector<Card> History<TGameMode>::getLeftCards() const
 	{
-		return m_CurrentRound;
-	}
+		constexpr auto allCards = RuleSet::getAllCards();
+		std::vector<Card> cards;
+		cards.reserve(allCards.size());
 
-	template<GameMode TGameMode>
-	int History<TGameMode>::getNextMoveIndex() const
-	{
-		return m_NextMove;
+		for (const auto card: allCards)
+		{
+
+		}
 	}
 
 	template<GameMode TGameMode>

@@ -40,6 +40,7 @@ add_executable(poker
         src/Strategy.h
         src/StrategyBase.cpp
         src/StrategyBase.h
+        src/Tree/DecisionNode.h
         src/Tree/InternalNode.h
         src/Tree/LeafNode.h
         src/Tree/NodeBase.h
