@@ -41,7 +41,7 @@ namespace dpm
 		if (playerMoves.size() <= index)
 			playerMoves.emplace_back(playerMove);
 		else
-			playerMoves.emplace(playerMoves.begin() + index, playerMove);
+			playerMoves.at(index) = playerMove;
 	}
 
 	template<GameMode TGameMode>

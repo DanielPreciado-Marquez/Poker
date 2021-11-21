@@ -14,23 +14,31 @@ namespace dpm
 	class RuleSet<GameMode::KuhnPoker>
 	{
 	public:
-		static constexpr unsigned int getNumberOfPlayers();
-
-		static constexpr unsigned int getNumberOfCards();
-
-		static constexpr unsigned int getNumberOfCardsPerPlayer();
-
-		static constexpr unsigned int getNumberOfCommunityCards();
 
 		static constexpr std::array<Card, 3> getAllCards();
 
-		static constexpr unsigned int getNumberOfRounds();
+		static constexpr bool CAN_CHECK_IN_FIRST_ROUND = true;
 
-		static constexpr int getNumberOfRaises();
+		static constexpr unsigned int NUMBER_OF_CARDS = 3u;
 
-		static constexpr bool canCheckInFirstRound();
+		static constexpr unsigned int NUMBER_OF_CARDS_PER_PLAYER = 1u;
+		static constexpr unsigned int getNumberOfCardsPerPlayer();
 
-		static unsigned int getNumberOfCommunityCards(unsigned int roundNumber);
+		static constexpr unsigned int NUMBER_OF_POSSIBLE_COMMUNITY_CARDS = 0u;
+
+		static constexpr unsigned int NUMBER_OF_COMMUNITY_CARDS = 0u;
+
+		static constexpr unsigned int NUMBER_OF_HAND_COMBINATIONS = 6u;
+
+		static constexpr unsigned int NUMBER_OF_PLAYERS = 2u;
+		static constexpr unsigned int getNumberOfPlayers();
+
+		static constexpr unsigned int NUMBER_OF_RAISES = 0u;
+
+		static constexpr unsigned int NUMBER_OF_ROUNDS = 1u;
+
+		static constexpr std::array<Card, NUMBER_OF_CARDS> ALL_CARDS = {Card::ClubJack(), Card::ClubQueen(), Card::ClubKing()};
+		static constexpr std::array<unsigned int, NUMBER_OF_ROUNDS> NUMBER_OF_COMMUNITY_CARDS_PER_ROUND = {0u};
 
 	public:
 		explicit RuleSet(Cash smallBlind = 1, Cash bigBlind = 1);
@@ -50,44 +58,14 @@ namespace dpm
 		return 2;
 	}
 
-	constexpr unsigned int RuleSet<GameMode::KuhnPoker>::getNumberOfCards()
-	{
-		return 3;
-	}
-
 	constexpr unsigned int RuleSet<GameMode::KuhnPoker>::getNumberOfCardsPerPlayer()
 	{
 		return 1;
 	}
 
-	constexpr unsigned int RuleSet<GameMode::KuhnPoker>::getNumberOfCommunityCards()
-	{
-		return 0;
-	}
-
 	constexpr std::array<Card, 3> RuleSet<GameMode::KuhnPoker>::getAllCards()
 	{
 		return {Card::ClubJack(), Card::ClubQueen(), Card::ClubKing()};
-	}
-
-	constexpr unsigned int RuleSet<GameMode::KuhnPoker>::getNumberOfRounds()
-	{
-		return 1;
-	}
-
-	constexpr int RuleSet<GameMode::KuhnPoker>::getNumberOfRaises()
-	{
-		return 0;
-	}
-
-	constexpr bool RuleSet<GameMode::KuhnPoker>::canCheckInFirstRound()
-	{
-		return true;
-	}
-
-	unsigned int RuleSet<GameMode::KuhnPoker>::getNumberOfCommunityCards(const unsigned int roundNumber)
-	{
-		return 0;
 	}
 
 	RuleSet<GameMode::KuhnPoker>::RuleSet(const Cash smallBlind, const Cash bigBlind)

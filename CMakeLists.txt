@@ -14,6 +14,7 @@ add_executable(poker
         src/Enums/DealerAction.cpp
         src/Enums/DealerAction.h
         src/Enums/GameMode.h
+        src/Enums/GameNodeType.hpp
         src/Enums/MoveType.h
         src/Enums/PlayerAction.cpp
         src/Enums/PlayerAction.h
@@ -40,11 +41,15 @@ add_executable(poker
         src/Strategy.h
         src/StrategyBase.cpp
         src/StrategyBase.h
+        src/Tree/ChildInfo.hpp
         src/Tree/DecisionNode.h
+        src/Tree/GameState.hpp
+        src/Tree/InitialGameState.hpp
         src/Tree/InternalNode.h
         src/Tree/LeafNode.h
         src/Tree/NodeBase.h
         src/Tree/RootNode.h
+        src/Tree/RoundState.hpp
         src/Tree/State.h
         src/TurnOptions.h
         src/Types/Cash.h

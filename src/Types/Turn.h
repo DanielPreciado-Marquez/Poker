@@ -9,6 +9,7 @@ namespace dpm
 	{
 		enum : Round
 		{
+			NoRound = -1,
 			Round1 = 0,
 			Round2 = 1,
 			End = 2

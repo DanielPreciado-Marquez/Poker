@@ -12,20 +12,19 @@ namespace dpm
 	class TurnOptions
 	{
 	private:
-		using DealerMove = DealerMove<TGameMode>;
-		using RuleSet = RuleSet<TGameMode>;
+		using PossibleDealerMoves = std::vector<DealerMove<TGameMode>>;
 		using PossiblePlayerMoves = std::array<PlayerMove, NUMBER_OF_PLAYER_ACTIONS>;
 
 	public:
 		PlayerIndex nextPlayer;
 		PossiblePlayerMoves possiblePlayerMoves;
-		DealerMove possibleDealerMove;
+		PossibleDealerMoves possibleDealerMove;
 
 		TurnOptions();
 
 		TurnOptions(PlayerIndex playerIndex, PossiblePlayerMoves &&possibleMoves);
 
-		explicit TurnOptions(DealerMove &&dealerMove);
+		explicit TurnOptions(PossibleDealerMoves &&dealerMoves);
 	};
 
 	template<GameMode TGameMode>
@@ -45,10 +44,10 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	TurnOptions<TGameMode>::TurnOptions(DealerMove &&dealerMove)
+	TurnOptions<TGameMode>::TurnOptions(PossibleDealerMoves &&dealerMoves)
 			: nextPlayer(PlayerIndices::Dealer)
 			, possiblePlayerMoves()
-			, possibleDealerMove(std::move(dealerMove))
+			, possibleDealerMove(std::move(dealerMoves))
 	{
 	}
 }

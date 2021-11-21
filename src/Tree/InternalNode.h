@@ -101,7 +101,7 @@ namespace dpm
 	{
 		const auto turnOptions = history.getPossibleMoves();
 
-		const auto &playerHand = this->m_State.playerCards.at(playerIndex);
+		const auto &playerHand = this->m_State.playerHands.at(playerIndex);
 		auto &informationSet = players.at(playerIndex)->getInformationSet<TGameMode>(playerIndex, history, turnOptions);
 		const auto strategy = informationSet.updateStrategy(reachProbabilities.at(playerIndex));
 

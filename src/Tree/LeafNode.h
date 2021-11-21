@@ -77,10 +77,10 @@ namespace dpm
 		if (!allButOneFolded)
 		{
 			winner = 0;
-			auto bestHand = this->m_State.playerCards.at(winner);
-			for (auto indexToCheck = 1u; indexToCheck < this->m_State.playerCards.size(); ++indexToCheck)
+			auto bestHand = this->m_State.playerHands.at(winner);
+			for (auto indexToCheck = 1u; indexToCheck < this->m_State.playerHands.size(); ++indexToCheck)
 			{
-				const auto &handToCheck = this->m_State.playerCards.at(indexToCheck);
+				const auto &handToCheck = this->m_State.playerHands.at(indexToCheck);
 				if (bestHand < handToCheck)
 				{
 					winner = indexToCheck;

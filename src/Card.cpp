@@ -135,6 +135,11 @@ namespace dpm
 		return m_Rank == card.m_Rank && m_Suit == card.m_Suit;
 	}
 
+	bool Card::operator!=(const Card &card) const
+	{
+		return m_Rank != card.m_Rank || m_Suit != card.m_Suit;
+	}
+
 	bool Card::operator<(const Card &card) const
 	{
 		if (m_Rank != card.m_Rank)

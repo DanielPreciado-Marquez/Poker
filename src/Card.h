@@ -137,6 +137,8 @@ namespace dpm
 
 		bool operator==(const Card &card) const;
 
+		bool operator!=(const Card &card) const;
+
 		bool operator<(const Card &card) const;
 
 		[[nodiscard]] CardRank getRank() const;

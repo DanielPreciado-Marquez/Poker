@@ -12,9 +12,10 @@ namespace dpm
 	{
 	public:
 		using TurnStrategy = std::array<float, NUMBER_OF_PLAYER_ACTIONS>;
+		using PossiblePlayerActions = std::array<PlayerAction, NUMBER_OF_PLAYER_ACTIONS>;
 
 	public:
-		explicit InformationSet(const TurnOptions <TGameMode> &turnOptions);
+		explicit InformationSet(const PossiblePlayerActions &possiblePlayerActions);
 
 		[[nodiscard]] const TurnStrategy &getStrategy() const;
 
@@ -27,7 +28,7 @@ namespace dpm
 		TurnStrategy m_Cumulative_Regrets;
 		TurnStrategy m_StrategySum;
 
-		std::array<PlayerAction, NUMBER_OF_PLAYER_ACTIONS> m_PlayerActions;
+		PossiblePlayerActions m_PlayerActions;
 
 	private:
 		void applyInitialStrategy(TurnStrategy &turnStrategy) const;
@@ -39,14 +40,12 @@ namespace dpm
 	};
 
 	template<GameMode TGameMode>
-	InformationSet<TGameMode>::InformationSet(const TurnOptions <TGameMode> &turnOptions)
+	InformationSet<TGameMode>::InformationSet(const PossiblePlayerActions &possiblePlayerActions)
 			: m_Strategy()
 			, m_Cumulative_Regrets()
 			, m_StrategySum()
-			, m_PlayerActions()
+			, m_PlayerActions(possiblePlayerActions)
 	{
-		for (auto i = 0u; i < m_PlayerActions.size(); ++i)
-			m_PlayerActions.at(i) = turnOptions.possiblePlayerMoves.at(i).playerAction;
 		applyInitialStrategy(m_Strategy);
 	}
 

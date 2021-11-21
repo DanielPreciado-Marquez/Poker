@@ -11,7 +11,7 @@ namespace dpm
 	class Hand
 	{
 	public:
-		std::array<Card, RuleSet<TGameMode>::getNumberOfCardsPerPlayer()> cards;
+		std::array<Card, RuleSet<TGameMode>::NUMBER_OF_CARDS_PER_PLAYER> cards;
 
 	public:
 		Hand();
@@ -32,6 +32,12 @@ namespace dpm
 
 		[[nodiscard]] std::string toString() const;
 	};
+
+	template<GameMode TGameMode>
+	bool operator==(const Hand<TGameMode> &handA, const Hand<TGameMode> &handB);
+
+	template<GameMode TGameMode>
+	bool operator!=(const Hand<TGameMode> &handA, const Hand<TGameMode> &handB);
 
 	template<GameMode TGameMode>
 	bool operator<(const Hand<TGameMode> &handA, const Hand<TGameMode> &handB);
@@ -131,6 +137,8 @@ namespace dpm
 		return ss.str();
 	}
 
+
+
 	template<GameMode TGameMode>
 	bool operator<(const Hand<TGameMode> &handA, const Hand<TGameMode> &handB)
 	{
@@ -149,6 +157,24 @@ namespace dpm
 	std::ostream &operator<<(std::ostream &ostream, const Hand<TGameMode> &hand)
 	{
 		return ostream << hand.toString();
+	}
+
+	template<GameMode TGameMode>
+	bool operator==(const Hand<TGameMode> &handA, const Hand<TGameMode> &handB)
+	{
+		for (auto i = 0u; i < handA.size(); ++i)
+			if (handA.cards.at(i) != handB.cards.at(i))
+				return false;
+		return true;
+	}
+
+	template<GameMode TGameMode>
+	bool operator!=(const Hand<TGameMode> &handA, const Hand<TGameMode> &handB)
+	{
+		for (auto i = 0u; i < handA.size(); ++i)
+			if (handA.cards.at(i) != handB.cards.at(i))
+				return true;
+		return false;
 	}
 }
 

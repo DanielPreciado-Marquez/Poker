@@ -59,7 +59,7 @@ namespace dpm
 		constexpr auto numberOfCardsPerPlayer = RuleSet<TGameMode>::getNumberOfCardsPerPlayer();
 		constexpr auto numberOfPlayers = RuleSet<TGameMode>::getNumberOfPlayers();
 
-		std::vector<typename State<TGameMode>::PlayerCards> hands;
+		std::vector<typename State<TGameMode>::PlayerHands> hands;
 
 		for (auto playerIndex = 0; playerIndex < numberOfPlayers; ++playerIndex)
 		{
@@ -119,7 +119,7 @@ namespace dpm
 	                               int playerIndexToUpdate) const
 	{
 		std::stringstream ss;
-		for (const auto &hand: history.getFinalState().playerCards)
+		for (const auto &hand: history.getFinalState().playerHands)
 			ss << hand;
 		return m_HandsToChildrenMapping.at(ss.str())->cfr(players,
 		                                                  playerIndex,
