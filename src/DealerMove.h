@@ -15,18 +15,18 @@ namespace dpm
 	struct DealerMove : public Move
 	{
 	private:
-		using Hands = std::array<Hand<TGameMode>, RuleSet<TGameMode>::getNumberOfPlayers()>;
+		using Hands = std::array<Hand<TGameMode>, RuleSet<TGameMode>::NUMBER_OF_PLAYERS>;
 
 	public:
 		DealerAction dealerAction;
-		std::vector<Card> communityCards;
+		Card communityCard;
 		Hands hands;
 
 		DealerMove();
 
 		explicit DealerMove(Hands hands);
 
-		explicit DealerMove(std::vector<Card> &&communityCards);
+		explicit DealerMove(Card communityCard);
 
 		[[nodiscard]] MoveType getMoveType() const override;
 
@@ -36,7 +36,7 @@ namespace dpm
 	template<GameMode TGameMode>
 	DealerMove<TGameMode>::DealerMove()
 			: dealerAction(DealerAction::NoAction)
-			, communityCards()
+			, communityCard()
 			, hands()
 	{
 	}
@@ -44,15 +44,15 @@ namespace dpm
 	template<GameMode TGameMode>
 	DealerMove<TGameMode>::DealerMove(Hands hands)
 			: dealerAction(DealerAction::DrawPlayerCards)
-			, communityCards()
+			, communityCard()
 			, hands(std::move(hands))
 	{
 	}
 
 	template<GameMode TGameMode>
-	DealerMove<TGameMode>::DealerMove(std::vector<Card> &&communityCards)
+	DealerMove<TGameMode>::DealerMove(const Card communityCard)
 			: dealerAction(DealerAction::DrawCommunityCards)
-			, communityCards(std::move(communityCards))
+			, communityCard(communityCard)
 			, hands()
 	{
 	}
@@ -69,7 +69,6 @@ namespace dpm
 		std::stringstream ss;
 		ss << ::dpm::toString(dealerAction);
 		if (dealerAction == DealerAction::DrawCommunityCards)
-			for (const auto &communityCard: communityCards)
 				ss << communityCard.toString();
 		if (dealerAction == DealerAction::DrawPlayerCards)
 			ss << hands.at(playerIndex).toString();

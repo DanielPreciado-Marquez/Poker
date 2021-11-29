@@ -1,0 +1,15 @@
+#ifndef DPMPOKER_GAMESTATETYPE_HPP
+#define DPMPOKER_GAMESTATETYPE_HPP
+
+namespace dpm
+{
+	enum class GameStateType
+	{
+		DEALER_MOVE,
+		INITIAL,
+		PLAYER_MOVE,
+		TERMINAL
+	};
+}
+
+#endif //DPMPOKER_GAMESTATETYPE_HPP

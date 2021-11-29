@@ -22,10 +22,10 @@ namespace dpm
 
 		void generateChildren(const TurnOptions<TGameMode> &turnOptions, History<TGameMode> &history) override;
 
-		float cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+		float cfr(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
 		          PlayerIndex playerIndex,
 		          History<TGameMode> &history,
-		          std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+		          std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> reachProbabilities,
 		          int playerIndexToUpdate) const override;
 
 	private:
@@ -93,10 +93,10 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	float InternalNode<TGameMode>::cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+	float InternalNode<TGameMode>::cfr(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
 	                                   PlayerIndex playerIndex,
 	                                   History<TGameMode> &history,
-	                                   std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+	                                   std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> reachProbabilities,
 	                                   int playerIndexToUpdate) const
 	{
 		const auto turnOptions = history.getPossibleMoves();

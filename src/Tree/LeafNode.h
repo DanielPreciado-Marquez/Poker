@@ -20,10 +20,10 @@ namespace dpm
 
 		[[nodiscard]] Outcome getOutcome() const;
 
-		float cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+		float cfr(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
 		          PlayerIndex playerIndex,
 		          History<TGameMode> &history,
-		          std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+		          std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> reachProbabilities,
 		          int playerIndexToUpdate) const override;
 
 	private:
@@ -93,10 +93,10 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	float LeafNode<TGameMode>::cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+	float LeafNode<TGameMode>::cfr(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
 	                               const PlayerIndex playerIndex,
 	                               History<TGameMode> &history,
-	                               std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+	                               std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> reachProbabilities,
 	                               const int playerIndexToUpdate) const
 	{
 		// TODO more than 2 players

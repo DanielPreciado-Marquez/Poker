@@ -11,22 +11,22 @@ namespace dpm
 	template<GameMode TGameMode>
 	class RootNode
 	{
-		using Hands = std::array<Hand<TGameMode>, RuleSet<TGameMode>::getNumberOfPlayers()>;
+		using Hands = std::array<Hand<TGameMode>, RuleSet<TGameMode>::NUMBER_OF_PLAYERS>;
 
 	public:
 		RootNode();
 
 		void generateChildren(RuleSet<TGameMode> *ruleSet);
 
-		float cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+		float cfr(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
 		          PlayerIndex playerIndex,
 		          History<TGameMode> &history,
-		          std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+		          std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> reachProbabilities,
 		          int playerIndexToUpdate) const;
 
 	private:
 		[[nodiscard]] static bool
-		handsContainCard(const std::array<Hand<TGameMode>, RuleSet<TGameMode>::getNumberOfPlayers()> &hands,
+		handsContainCard(const std::array<Hand<TGameMode>, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &hands,
 		                 const Card &card);
 
 	private:
@@ -42,7 +42,7 @@ namespace dpm
 
 	template<GameMode TGameMode>
 	bool RootNode<TGameMode>::handsContainCard(
-			const std::array<Hand<TGameMode>, RuleSet<TGameMode>::getNumberOfPlayers()> &hands,
+			const std::array<Hand<TGameMode>, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &hands,
 			const Card &card)
 	{
 		for (const auto &playerHand: hands)
@@ -54,10 +54,10 @@ namespace dpm
 	template<GameMode TGameMode>
 	void RootNode<TGameMode>::generateChildren(RuleSet<TGameMode> *ruleSet)
 	{
-		constexpr auto allCards = RuleSet<TGameMode>::getAllCards();
+		constexpr auto allCards = RuleSet<TGameMode>::ALL_CARDS;
 		constexpr auto numberOfCards = allCards.size();
-		constexpr auto numberOfCardsPerPlayer = RuleSet<TGameMode>::getNumberOfCardsPerPlayer();
-		constexpr auto numberOfPlayers = RuleSet<TGameMode>::getNumberOfPlayers();
+		constexpr auto numberOfCardsPerPlayer = RuleSet<TGameMode>::NUMBER_OF_CARDS_PER_PLAYER;
+		constexpr auto numberOfPlayers = RuleSet<TGameMode>::NUMBER_OF_PLAYERS;
 
 		std::vector<typename State<TGameMode>::PlayerHands> hands;
 
@@ -112,10 +112,10 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	float RootNode<TGameMode>::cfr(const std::array<Player *, RuleSet<TGameMode>::getNumberOfPlayers()> &players,
+	float RootNode<TGameMode>::cfr(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
 	                               PlayerIndex playerIndex,
 	                               History<TGameMode> &history,
-	                               std::array<float, RuleSet<TGameMode>::getNumberOfPlayers()> reachProbabilities,
+	                               std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> reachProbabilities,
 	                               int playerIndexToUpdate) const
 	{
 		std::stringstream ss;

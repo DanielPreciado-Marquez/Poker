@@ -80,8 +80,10 @@ namespace dpm
 	template<GameMode TGameMode>
 	bool Hand<TGameMode>::containsCard(const Card &card) const
 	{
-		const auto itr = std::find(cards.begin(), cards.end(), card);
-		return itr != cards.end();
+		for (const auto &handCard: cards)
+			if (handCard == card)
+				return true;
+		return false;
 	}
 
 	template<GameMode TGameMode>

@@ -15,11 +15,16 @@ namespace dpm
 	struct RoundHistory
 	{
 		std::vector<PlayerMove> playerMoves;
-		DealerMove <TGameMode> dealerMove;
+		std::array<DealerMove < TGameMode>, RuleSet<TGameMode>::MAX_DEALER_MOVES_PER_ROUND>
+		dealerMoves;
+
+		RoundHistory();
 
 		explicit RoundHistory(DealerMove <TGameMode> dealerMove);
 
 		void addPlayerMove(const PlayerMove &playerMove, unsigned int index);
+
+		void addDealerMove(const DealerMove <TGameMode> &dealerMove);
 
 		[[nodiscard]] std::string toString(PlayerIndex playerIndex) const;
 
@@ -29,10 +34,18 @@ namespace dpm
 	// --- Implementation ---
 
 	template<GameMode TGameMode>
+	RoundHistory<TGameMode>::RoundHistory()
+			: playerMoves()
+			, dealerMoves()
+	{
+	}
+
+	template<GameMode TGameMode>
 	RoundHistory<TGameMode>::RoundHistory(DealerMove <TGameMode> dealerMove)
 			: playerMoves()
-			, dealerMove(std::move(dealerMove))
+			, dealerMoves()
 	{
+		dealerMoves.at(0) = std::move(dealerMove);
 	}
 
 	template<GameMode TGameMode>
@@ -45,10 +58,28 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
+	void RoundHistory<TGameMode>::addDealerMove(const DealerMove <TGameMode> &dealerMove)
+	{
+		for (auto &dealerMoveSlot: dealerMoves)
+		{
+			if (dealerMoveSlot.dealerAction == DealerAction::NoAction)
+			{
+				dealerMoveSlot = dealerMove;
+				return;
+			}
+		}
+	}
+
+	template<GameMode TGameMode>
 	std::string RoundHistory<TGameMode>::toString(const PlayerIndex playerIndex) const
 	{
 		std::stringstream ss;
-		ss << dealerMove.toString(playerIndex);
+		for (const auto &dealerMove: dealerMoves)
+		{
+			if (dealerMove.dealerAction == DealerAction::NoAction)
+				break;
+			ss << dealerMove.toString(playerIndex);
+		}
 		for (const auto &playerMove: playerMoves)
 			ss << playerMove.toString();
 		return ss.str();
@@ -58,7 +89,12 @@ namespace dpm
 	std::string RoundHistory<TGameMode>::toString(const PlayerIndex playerIndex, const unsigned int numberMoves) const
 	{
 		std::stringstream ss;
-		ss << dealerMove.toString(playerIndex);
+		for (const auto &dealerMove: dealerMoves)
+		{
+			if (dealerMove.dealerAction == DealerAction::NoAction)
+				break;
+			ss << dealerMove.toString(playerIndex);
+		}
 		for (auto i = 0u; i < numberMoves; ++i)
 			ss << playerMoves.at(i).toString();
 		return ss.str();

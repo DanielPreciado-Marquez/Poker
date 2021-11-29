@@ -153,6 +153,11 @@ namespace dpm
 		return m_Rank;
 	}
 
+	CardSuit Card::getSuit() const
+	{
+		return m_Suit;
+	}
+
 	bool Card::isEmpty() const
 	{
 		return m_Rank == CardRank::NoRank && m_Suit == CardSuit::NoSuit;

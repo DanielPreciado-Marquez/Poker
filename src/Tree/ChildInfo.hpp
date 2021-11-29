@@ -3,10 +3,12 @@
 
 #include "Enums/GameMode.h"
 #include "Enums/GameNodeType.hpp"
-#include "State.h"
 
 namespace dpm
 {
+	template<GameMode TGameMode>
+	struct State;
+
 	template<GameMode TGameMode>
 	struct ChildInfo
 	{
@@ -21,7 +23,7 @@ namespace dpm
 
 	template<GameMode TGameMode>
 	ChildInfo<TGameMode>::ChildInfo()
-			: state()
+			: state(nullptr)
 			, playerMove()
 			, dealerMove()
 	{

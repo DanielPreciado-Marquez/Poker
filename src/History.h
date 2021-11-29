@@ -22,9 +22,9 @@ namespace dpm
 
 		void applyMove(const Move &move, PlayerIndex playerIndex);
 
-		void rollback(unsigned int roundIndex, unsigned int moveIndex);
+		void beginNewRound();
 
-		[[nodiscard]] std::vector<Card> getLeftCards() const;
+		void rollback(unsigned int roundIndex, unsigned int moveIndex);
 
 		[[nodiscard]] std::string toString(PlayerIndex playerIndex) const;
 
@@ -62,12 +62,9 @@ namespace dpm
 		if (move.getMoveType() == MoveType::DealerMove)
 		{
 			const auto &dealerMove = dynamic_cast<const DealerMove<TGameMode> &>(move);
-			if (dealerMove.dealerAction == DealerAction::DrawPlayerCards)
-				m_RoundHistories.emplace_back(DealerMove<TGameMode>(std::move(dealerMove.hands)));
-			else if (dealerMove.dealerAction == DealerAction::DrawCommunityCards)
-			{
-				// TODO apply drawn community cards
-			}
+			if (dealerMove.dealerAction == DealerAction::DrawPlayerCards ||
+			    dealerMove.dealerAction == DealerAction::DrawCommunityCards)
+				m_RoundHistories.at(m_CurrentRound).addDealerMove(dealerMove);
 		}
 		else if (move.getMoveType() == MoveType::PlayerMove)
 		{
@@ -78,23 +75,18 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
+	void History<TGameMode>::beginNewRound()
+	{
+		m_RoundHistories.push_back({});
+		m_CurrentRound += 1;
+		m_NextMove = 0;
+	}
+
+	template<GameMode TGameMode>
 	void History<TGameMode>::rollback(const unsigned int roundIndex, const unsigned int moveIndex)
 	{
 		m_CurrentRound = roundIndex;
 		m_NextMove = moveIndex;
-	}
-
-	template<GameMode TGameMode>
-	std::vector<Card> History<TGameMode>::getLeftCards() const
-	{
-		constexpr auto allCards = RuleSet<TGameMode>::ALL_CARDS;
-		std::vector<Card> cards;
-		cards.reserve(allCards.size());
-
-		for (const auto card: allCards)
-		{
-
-		}
 	}
 
 	template<GameMode TGameMode>

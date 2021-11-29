@@ -19,6 +19,7 @@ namespace dpm
 
 		template<GameMode TGameMode>
 		[[nodiscard]] InformationSet<TGameMode> &getInformationSet(PlayerIndex playerIndex,
+		                                                           const Hand<TGameMode> &hand,
 		                                                           const History<TGameMode> &history,
 		                                                           const typename InformationSet<TGameMode>::PossiblePlayerActions &possiblePlayerActions);
 
@@ -49,6 +50,7 @@ namespace dpm
 
 	template<GameMode TGameMode>
 	InformationSet<TGameMode> &Player::getInformationSet(const PlayerIndex playerIndex,
+	                                                     const Hand<TGameMode> &hand,
 	                                                     const History<TGameMode> &history,
 	                                                     const typename InformationSet<TGameMode>::PossiblePlayerActions &possiblePlayerActions)
 	{
@@ -56,7 +58,7 @@ namespace dpm
 		if (strategyItr == m_Strategies.end())
 			strategyItr = m_Strategies.emplace(TGameMode, std::make_unique<Strategy<TGameMode>>()).first;
 		auto strategy = dynamic_cast<Strategy<TGameMode> *>(strategyItr->second.get());
-		return strategy->getInformationSet(playerIndex, history, possiblePlayerActions);
+		return strategy->getInformationSet(playerIndex, hand, history, possiblePlayerActions);
 	}
 
 }

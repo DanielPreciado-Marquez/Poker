@@ -10,6 +10,9 @@ namespace dpm
 	class RoundState : public State<TGameMode>
 	{
 	public:
+		using Children = std::array<ChildInfo<TGameMode>, RuleSet<TGameMode>::NUMBER_OF_POSSIBLE_COMMUNITY_CARDS>;
+
+	public:
 		static RoundState *createRoundState(State<TGameMode> &&state);
 
 	public:
@@ -20,7 +23,11 @@ namespace dpm
 		explicit RoundState(State<TGameMode> &&state);
 
 		[[nodiscard]]
-		bool isTerminal() const override;
+		GameStateType getGameStateType() const override;
+
+		[[nodiscard]] const Children &getChildren() const;
+
+		[[nodiscard]] unsigned int getNumberOfChildren() const;
 
 		void generateChildren(const TurnOptions<TGameMode> &turnOptions);
 
@@ -28,7 +35,8 @@ namespace dpm
 		static std::vector<std::unique_ptr<RoundState<TGameMode>>> s_RoundStates;
 
 	private:
-		std::array<ChildInfo<TGameMode>, RuleSet<TGameMode>::NUMBER_OF_POSSIBLE_COMMUNITY_CARDS> m_Children;
+		Children m_Children;
+		unsigned int m_NumberChildren;
 
 	};
 
@@ -46,6 +54,7 @@ namespace dpm
 	RoundState<TGameMode>::RoundState()
 			: State<TGameMode>()
 			, m_Children()
+			, m_NumberChildren()
 	{
 	}
 
@@ -53,18 +62,37 @@ namespace dpm
 	RoundState<TGameMode>::RoundState(State<TGameMode> &&state)
 			: State<TGameMode>(std::move(state))
 			, m_Children()
+			, m_NumberChildren()
 	{
 	}
 
 	template<GameMode TGameMode>
-	bool RoundState<TGameMode>::isTerminal() const
+	GameStateType RoundState<TGameMode>::getGameStateType() const
 	{
-		return false;
+		return GameStateType::DEALER_MOVE;
+	}
+
+	template<GameMode TGameMode>
+	const typename RoundState<TGameMode>::Children &RoundState<TGameMode>::getChildren() const
+	{
+		return m_Children;
+	}
+
+	template<GameMode TGameMode>
+	unsigned int RoundState<TGameMode>::getNumberOfChildren() const
+	{
+		return m_NumberChildren;
 	}
 
 	template<GameMode TGameMode>
 	void RoundState<TGameMode>::generateChildren(const TurnOptions<TGameMode> &turnOptions)
 	{
+		m_NumberChildren = turnOptions.possibleDealerMoves.size();
+		for (auto i = 0u; i < m_NumberChildren; ++i)
+		{
+			auto &dealerMove = turnOptions.possibleDealerMoves.at(i);
+			this->generateChild(&m_Children.at(i), std::move(dealerMove), PlayerIndices::Dealer);
+		}
 	}
 }
 

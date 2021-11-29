@@ -1,4 +1,4 @@
-#include "Poker.h"
+#include "DPMpoker/DPMpoker.hpp"
 
 int main()
 {
@@ -6,6 +6,6 @@ int main()
 	dpm::Player playerB;
 	dpm::Poker<dpm::GameMode::KuhnPoker> poker;
 	poker.setPlayers({&playerA, &playerB});
-	poker.trainPlayer(10000, 0, false);
+	poker.trainPlayer(100000, 0, false);
 	return 0;
 }

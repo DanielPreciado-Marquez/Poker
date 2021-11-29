@@ -27,8 +27,8 @@ namespace dpm
 		RuleSet<TGameMode> m_RuleSet;
 		InitialGameState<TGameMode> m_GameState;
 
-		std::array<PlayerSlot, RuleSet<TGameMode>::getNumberOfPlayers()> m_PlayerSlots;
-		std::array<PlayerSlot *, RuleSet<TGameMode>::getNumberOfPlayers()> m_PlayerOrder;
+		std::array<PlayerSlot, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> m_PlayerSlots;
+		std::array<PlayerSlot *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> m_PlayerOrder;
 
 		std::default_random_engine m_Rng;
 
@@ -41,9 +41,24 @@ namespace dpm
 		          const State<TGameMode> *currentState,
 		          PlayerIndex playerIndex,
 		          History<TGameMode> &history,
-		          std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> reachProbabilities,
+		          const std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &reachProbabilities,
 		          int playerIndexToUpdate) const;
 
+		float cfrTerminal(const State<TGameMode> *currentState, PlayerIndex playerIndex) const;
+
+		float cfrDealerMove(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
+		                    const State<TGameMode> *currentState,
+		                    PlayerIndex playerIndex,
+		                    History<TGameMode> &history,
+		                    const std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &reachProbabilities,
+		                    int playerIndexToUpdate) const;
+
+		float cfrPlayerMove(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
+		                    const State<TGameMode> *currentState,
+		                    PlayerIndex playerIndex,
+		                    History<TGameMode> &history,
+		                    const std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &reachProbabilities,
+		                    int playerIndexToUpdate) const;
 	};
 
 	template<GameMode TGameMode>
@@ -76,7 +91,7 @@ namespace dpm
 	                                    const PlayerIndex playerIndex,
 	                                    const bool playAgainstOtherPlayers)
 	{
-		constexpr auto numberOfPlayers = RuleSet<TGameMode>::getNumberOfPlayers();
+		constexpr auto numberOfPlayers = RuleSet<TGameMode>::NUMBER_OF_PLAYERS;
 		std::array<Player *, numberOfPlayers> players;
 
 		if (playAgainstOtherPlayers)
@@ -116,7 +131,7 @@ namespace dpm
 		constexpr auto numberOfPlayers = RuleSet<TGameMode>::NUMBER_OF_PLAYERS;
 		constexpr auto numberOfCardsPerPlayer = RuleSet<TGameMode>::NUMBER_OF_CARDS_PER_PLAYER;
 
-		auto deck = RuleSet<TGameMode>::getAllCards();
+		auto deck = RuleSet<TGameMode>::ALL_CARDS;
 		std::shuffle(deck.begin(), deck.end(), m_Rng);
 		typename State<TGameMode>::PlayerHands playerHands;
 		for (auto playerIndex = 0u; playerIndex < numberOfPlayers; ++playerIndex)
@@ -137,24 +152,79 @@ namespace dpm
 	                            const State<TGameMode> *const currentState,
 	                            const PlayerIndex playerIndex,
 	                            History<TGameMode> &history,
-	                            std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> reachProbabilities,
+	                            const std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &reachProbabilities,
 	                            int playerIndexToUpdate) const
 	{
-		if (currentState->isTerminal())
+		if (currentState->getGameStateType() == GameStateType::TERMINAL)
+			return cfrTerminal(currentState, playerIndex);
+		else if (currentState->getGameStateType() == GameStateType::DEALER_MOVE)
+			return cfrDealerMove(players, currentState, playerIndex, history, reachProbabilities, playerIndexToUpdate);
+		else if (currentState->getGameStateType() == GameStateType::PLAYER_MOVE)
+			return cfrPlayerMove(players, currentState, playerIndex, history, reachProbabilities, playerIndexToUpdate);
+		else
+			return 0;
+	}
+
+	template<GameMode TGameMode>
+	float Poker<TGameMode>::cfrTerminal(const State<TGameMode> *const currentState,
+	                                    const PlayerIndex playerIndex) const
+	{
+		// TODO more than 2 players
+		const auto outcome = currentState->getOutcome();
+		const auto playerStake = currentState->stakes.at(playerIndex);
+		if (outcome.winner == playerIndex)
+			return float(outcome.stake - playerStake);
+		else
+			return -float(playerStake);
+	}
+
+	template<GameMode TGameMode>
+	float Poker<TGameMode>::cfrDealerMove(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
+	                                      const State<TGameMode> *const currentState,
+	                                      const PlayerIndex playerIndex,
+	                                      History<TGameMode> &history,
+	                                      const std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &reachProbabilities,
+	                                      int playerIndexToUpdate) const
+	{
+		history.beginNewRound();
+		auto currentRoundState = dynamic_cast<const RoundState<TGameMode> *const>(currentState);
+		const auto numberChildren = currentRoundState->getNumberOfChildren();
+		auto counterfactualSum = 0.0f;
+		auto nextReachProbabilities = reachProbabilities;
+		for (auto &reachProbability: nextReachProbabilities)
+			reachProbability /= numberChildren;
+		for (const auto &childInfo: currentRoundState->getChildren())
 		{
-			// TODO more than 2 players
-			const auto outcome = currentState->getOutcome();
-			const auto playerStake = currentState->stakes.at(playerIndex);
-			if (outcome.winner == playerIndex)
-				return float(outcome.stake - playerStake);
-			else
-				return -float(playerStake);
+			if (!childInfo.state)
+				break;
+			const auto &dealerMove = childInfo.dealerMove;
+			const auto currentRoundIndex = history.getCurrentRoundIndex();
+			const auto nextMoveIndex = history.getNextMoveIndex();
+			history.applyMove(dealerMove, playerIndex);
+			counterfactualSum -= cfr(players,
+			                         childInfo.state,
+			                         PlayerIndices::Player1,
+			                         history,
+			                         reachProbabilities,
+			                         playerIndexToUpdate);
+			history.rollback(currentRoundIndex, nextMoveIndex);
 		}
-		// TODO Dealer
+		return counterfactualSum;
+	}
+
+	template<GameMode TGameMode>
+	float Poker<TGameMode>::cfrPlayerMove(const std::array<Player *, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &players,
+	                                      const State<TGameMode> *const currentState,
+	                                      const PlayerIndex playerIndex,
+	                                      History<TGameMode> &history,
+	                                      const std::array<float, RuleSet<TGameMode>::NUMBER_OF_PLAYERS> &reachProbabilities,
+	                                      const int playerIndexToUpdate) const
+	{
 		auto currentGameState = dynamic_cast<const GameState<TGameMode> *const>(currentState);
 		const auto possiblePlayerActions = currentGameState->getPlayerActions();
 		const auto &playerHand = currentGameState->playerHands.at(playerIndex);
 		auto &informationSet = players.at(playerIndex)->getInformationSet<TGameMode>(playerIndex,
+		                                                                             playerHand,
 		                                                                             history,
 		                                                                             possiblePlayerActions);
 		const auto strategy = informationSet.updateStrategy(reachProbabilities.at(playerIndex));

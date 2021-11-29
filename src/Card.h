@@ -143,6 +143,8 @@ namespace dpm
 
 		[[nodiscard]] CardRank getRank() const;
 
+		[[nodiscard]] CardSuit getSuit() const;
+
 		[[nodiscard]] bool isEmpty() const;
 
 		[[nodiscard]] std::string toString() const;

@@ -14,6 +14,7 @@ namespace dpm
 		Strategy();
 
 		InformationSet<TGameMode> &getInformationSet(PlayerIndex playerIndex,
+		                                             const Hand<TGameMode> &hand,
 		                                             const History<TGameMode> &history,
 		                                             const typename InformationSet<TGameMode>::PossiblePlayerActions &possiblePlayerActions);
 
@@ -30,13 +31,15 @@ namespace dpm
 
 	template<GameMode TGameMode>
 	InformationSet<TGameMode> &Strategy<TGameMode>::getInformationSet(const PlayerIndex playerIndex,
+	                                                                  const Hand<TGameMode> &hand,
 	                                                                  const History<TGameMode> &history,
 	                                                                  const typename InformationSet<TGameMode>::PossiblePlayerActions &possiblePlayerActions)
 	{
 		const auto key = history.toString(playerIndex);
 		auto informationSetIterator = m_InformationSets.find(key);
 		if (informationSetIterator == m_InformationSets.end())
-			informationSetIterator = m_InformationSets.emplace(key, InformationSet<TGameMode>(possiblePlayerActions)).first;
+			informationSetIterator = m_InformationSets.emplace(key,
+			                                                   InformationSet<TGameMode>(possiblePlayerActions)).first;
 		return informationSetIterator->second;
 	}
 }

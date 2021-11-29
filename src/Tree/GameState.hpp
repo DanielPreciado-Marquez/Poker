@@ -21,11 +21,10 @@ namespace dpm
 
 		explicit GameState(State<TGameMode> &&state);
 
-		[[nodiscard]]
-		const std::array<ChildInfo<TGameMode>, NUMBER_OF_PLAYER_ACTIONS> &getChildren() const;
+		[[nodiscard]] GameStateType getGameStateType() const override;
 
 		[[nodiscard]]
-		bool isTerminal() const override;
+		const std::array<ChildInfo<TGameMode>, NUMBER_OF_PLAYER_ACTIONS> &getChildren() const;
 
 		void generateChildren(const TurnOptions<TGameMode> &turnOptions);
 
@@ -64,15 +63,15 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	const std::array<ChildInfo<TGameMode>, NUMBER_OF_PLAYER_ACTIONS> &GameState<TGameMode>::getChildren() const
+	GameStateType GameState<TGameMode>::getGameStateType() const
 	{
-		return m_Children;
+		return GameStateType::PLAYER_MOVE;
 	}
 
 	template<GameMode TGameMode>
-	bool GameState<TGameMode>::isTerminal() const
+	const std::array<ChildInfo<TGameMode>, NUMBER_OF_PLAYER_ACTIONS> &GameState<TGameMode>::getChildren() const
 	{
-		return false;
+		return m_Children;
 	}
 
 	template<GameMode TGameMode>
@@ -80,28 +79,10 @@ namespace dpm
 	{
 		for (auto i = 0u; i < NUMBER_OF_PLAYER_ACTIONS; ++i)
 		{
-			auto playerMove = turnOptions.possiblePlayerMoves.at(i);
+			auto &playerMove = turnOptions.possiblePlayerMoves.at(i);
 			if (playerMove.playerAction == PlayerAction::NoAction)
 				continue;
-			auto childState = this->nextState(playerMove, turnOptions.nextPlayer);
-			const auto nextTurnOptions = childState.getTurnOptions();
-			if (nextTurnOptions.nextPlayer == PlayerIndices::Dealer)
-			{
-				auto child = RoundState<TGameMode>::createRoundState(std::move(childState));
-				m_Children.at(i) = {child, std::move(playerMove)};
-				child->generateChildren(nextTurnOptions);
-			}
-			else if (nextTurnOptions.nextPlayer == PlayerIndices::NoPlayer)
-			{
-				State<TGameMode> *child = State<TGameMode>::createState(std::move(childState));
-				m_Children.at(i) = ChildInfo<TGameMode>{child, std::move(playerMove)};
-			}
-			else
-			{
-				auto child = GameState<TGameMode>::createGameState(std::move(childState));
-				m_Children.at(i) = ChildInfo<TGameMode>(child, std::move(playerMove));
-				child->generateChildren(nextTurnOptions);
-			}
+			this->generateChild(&m_Children.at(i), std::move(playerMove), turnOptions.nextPlayer);
 		}
 	}
 

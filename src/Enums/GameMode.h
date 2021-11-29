@@ -5,7 +5,8 @@ namespace dpm
 {
 	enum class GameMode
 	{
-		KuhnPoker
+		KuhnPoker,
+		LeducHoldem
 	};
 }
 

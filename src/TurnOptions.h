@@ -18,7 +18,7 @@ namespace dpm
 	public:
 		PlayerIndex nextPlayer;
 		PossiblePlayerMoves possiblePlayerMoves;
-		PossibleDealerMoves possibleDealerMove;
+		PossibleDealerMoves possibleDealerMoves;
 
 		TurnOptions();
 
@@ -31,7 +31,7 @@ namespace dpm
 	TurnOptions<TGameMode>::TurnOptions()
 			: nextPlayer(PlayerIndices::NoPlayer)
 			, possiblePlayerMoves()
-			, possibleDealerMove()
+			, possibleDealerMoves()
 	{
 	}
 
@@ -39,7 +39,7 @@ namespace dpm
 	TurnOptions<TGameMode>::TurnOptions(const PlayerIndex playerIndex, PossiblePlayerMoves &&possibleMoves)
 			: nextPlayer(playerIndex)
 			, possiblePlayerMoves(std::move(possibleMoves))
-			, possibleDealerMove()
+			, possibleDealerMoves()
 	{
 	}
 
@@ -47,7 +47,7 @@ namespace dpm
 	TurnOptions<TGameMode>::TurnOptions(PossibleDealerMoves &&dealerMoves)
 			: nextPlayer(PlayerIndices::Dealer)
 			, possiblePlayerMoves()
-			, possibleDealerMove(std::move(dealerMoves))
+			, possibleDealerMoves(std::move(dealerMoves))
 	{
 	}
 }

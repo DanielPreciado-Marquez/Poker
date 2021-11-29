@@ -1,6 +1,8 @@
 #ifndef KUHN_POKER_STATE_H
 #define KUHN_POKER_STATE_H
 
+#include "ChildInfo.hpp"
+#include "Enums/GameStateType.hpp"
 #include "Enums/PlayerAction.h"
 #include "Hand.h"
 #include "Outcome.h"
@@ -14,6 +16,12 @@
 namespace dpm
 {
 	template<GameMode TGameMode>
+	struct RoundState;
+
+	template<GameMode TGameMode>
+	struct GameState;
+
+	template<GameMode TGameMode>
 	struct State
 	{
 		using CommunityCards = std::array<Card, RuleSet<TGameMode>::NUMBER_OF_COMMUNITY_CARDS>;
@@ -26,7 +34,6 @@ namespace dpm
 
 	public:
 		CommunityCards communityCards;
-		unsigned int currentRound;
 		int numberOfRaises;
 		PlayerHands playerHands;
 		PlayerIndex previousPlayer;
@@ -52,7 +59,7 @@ namespace dpm
 		State copyState() const;
 
 		[[nodiscard]]
-		virtual bool isTerminal() const;
+		virtual GameStateType getGameStateType() const;
 
 		[[nodiscard]]
 		unsigned int getNumberOfCommunityCards() const;
@@ -60,6 +67,9 @@ namespace dpm
 		void applyMove(const Move &move, PlayerIndex playerIndex);
 
 		State nextState(const Move &move, PlayerIndex playerIndex) const;
+
+		template<class TMove>
+		void generateChild(ChildInfo<TGameMode> *childInfo, TMove move, PlayerIndex playerIndex);
 
 		[[nodiscard]]
 		TurnOptions<TGameMode> getTurnOptions() const;
@@ -76,6 +86,9 @@ namespace dpm
 	private:
 		static std::vector<std::unique_ptr<State>> s_States;
 
+	private:
+		void startNextRound();
+
 	};
 
 	template<GameMode TGameMode>
@@ -91,7 +104,6 @@ namespace dpm
 	template<GameMode TGameMode>
 	State<TGameMode>::State()
 			: communityCards()
-			, currentRound(0)
 			, numberOfRaises(0)
 			, playerHands()
 			, previousPlayer(PlayerIndices::NoPlayer)
@@ -104,7 +116,6 @@ namespace dpm
 	template<GameMode TGameMode>
 	State<TGameMode>::State(const Cash smallBlind, const Cash bigBlind)
 			: communityCards()
-			, currentRound(0)
 			, numberOfRaises(0)
 			, playerHands()
 			, previousPlayer(PlayerIndices::NoPlayer)
@@ -122,7 +133,6 @@ namespace dpm
 	template<GameMode TGameMode>
 	State<TGameMode>::State(const State::PlayerHands &playerCards, const Cash smallBlind, const Cash bigBlind)
 			: communityCards()
-			, currentRound(0)
 			, numberOfRaises(0)
 			, playerHands(playerCards)
 			, previousPlayer(PlayerIndices::Dealer)
@@ -142,7 +152,6 @@ namespace dpm
 	                        const PlayerIndex previousPlayer, PreviousPlayerActions previousPlayerActions,
 	                        const State::Stakes &stakes, const Round round)
 			: communityCards(communityCards)
-			, currentRound(0)
 			, numberOfRaises(0)
 			, playerHands(playerCards)
 			, previousPlayer(previousPlayer)
@@ -159,9 +168,9 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	bool State<TGameMode>::isTerminal() const
+	GameStateType State<TGameMode>::getGameStateType() const
 	{
-		return true;
+		return GameStateType::TERMINAL;
 	}
 
 	template<GameMode TGameMode>
@@ -176,6 +185,7 @@ namespace dpm
 	template<GameMode TGameMode>
 	void State<TGameMode>::applyMove(const Move &move, const PlayerIndex playerIndex)
 	{
+		// TODO increase round if no dealer move happened
 		if (move.getMoveType() == MoveType::DealerMove)
 		{
 			const auto &dealerMove = dynamic_cast<const DealerMove<TGameMode> &>(move);
@@ -185,10 +195,11 @@ namespace dpm
 			{
 				const auto numberCommunityCards = RuleSet<TGameMode>::NUMBER_OF_COMMUNITY_CARDS_PER_ROUND;
 				const auto number = getNumberOfCommunityCards();
-				communityCards.at(number) = dealerMove.communityCards.at(0);
+				communityCards.at(number) = dealerMove.communityCard;
 				if (number + 1 >= numberCommunityCards.at(round))
-					++round;
+					startNextRound();
 			}
+			previousPlayer = PlayerIndices::Dealer;
 		}
 		else if (move.getMoveType() == MoveType::PlayerMove)
 		{
@@ -210,10 +221,35 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
+	template<class TMove>
+	void State<TGameMode>::generateChild(ChildInfo<TGameMode> *childInfo, TMove move, const PlayerIndex playerIndex)
+	{
+		auto childState = nextState(move, playerIndex);
+		const auto nextTurnOptions = childState.getTurnOptions();
+		if (nextTurnOptions.nextPlayer == PlayerIndices::Dealer)
+		{
+			auto child = RoundState<TGameMode>::createRoundState(std::move(childState));
+			*childInfo = {child, std::forward<TMove>(move)};
+			child->generateChildren(nextTurnOptions);
+		}
+		else if (nextTurnOptions.nextPlayer == PlayerIndices::NoPlayer)
+		{
+			auto child = State<TGameMode>::createState(std::move(childState));
+			*childInfo = {child, std::forward<TMove>(move)};
+		}
+		else
+		{
+			auto child = GameState<TGameMode>::createGameState(std::move(childState));
+			*childInfo = {child, std::forward<TMove>(move)};
+			child->generateChildren(nextTurnOptions);
+		}
+	}
+
+	template<GameMode TGameMode>
 	TurnOptions<TGameMode> State<TGameMode>::getTurnOptions() const
 	{
 		constexpr unsigned int numberOfPlayers = RuleSet<TGameMode>::NUMBER_OF_PLAYERS;
-		bool allChecked = true;
+		auto everyoneChecked = true;
 		PlayerIndex lastBet = PlayerIndices::NoPlayer;
 		PlayerIndex nextPlayerIndex = PlayerIndices::NoPlayer;
 
@@ -221,9 +257,8 @@ namespace dpm
 		{
 			const auto indexToCheck = (previousPlayer + i) % numberOfPlayers;
 			const auto playerAction = previousPlayerActions.at(indexToCheck);
-			// check if no one bet or raised
-			if (playerAction != PlayerAction::Check)
-				allChecked = false;
+			if (playerAction != PlayerAction::Check && playerAction != PlayerAction::Fold)
+				everyoneChecked = false;
 
 			// check if all other players folded
 			if (nextPlayerIndex == PlayerIndices::NoPlayer
@@ -239,7 +274,7 @@ namespace dpm
 			nextPlayerIndex = PlayerIndices::NoPlayer;
 
 		// round ended
-		if (allChecked || nextPlayerIndex == PlayerIndices::NoPlayer)
+		if (everyoneChecked || nextPlayerIndex == PlayerIndices::NoPlayer)
 		{
 			constexpr auto numberOfRounds = RuleSet<TGameMode>::NUMBER_OF_ROUNDS;
 			if (round + 1 >= numberOfRounds)
@@ -251,7 +286,7 @@ namespace dpm
 				const auto availableCards = getAvailableCards();
 				std::vector<DealerMove<TGameMode>> moves(availableCards.size());
 				for (auto i = 0u; i < availableCards.size(); ++i)
-					moves.at(i) = DealerMove<TGameMode>({availableCards.at(i)});
+					moves.at(i) = DealerMove<TGameMode>(availableCards.at(i));
 				return TurnOptions<TGameMode>(std::move(moves));
 			}
 			nextPlayerIndex = PlayerIndices::Player1;
@@ -259,29 +294,32 @@ namespace dpm
 		}
 
 		// TODO stakes
+		const auto raise = RuleSet<TGameMode>::RAISES.at(round);
 		if (lastBet == PlayerIndices::NoPlayer && (round != 0 || RuleSet<TGameMode>::CAN_CHECK_IN_FIRST_ROUND))
 		{
 			// check, bet
 			return TurnOptions<TGameMode>(nextPlayerIndex,
 			                              {PlayerMove{PlayerAction::Check, 0},
-			                               PlayerMove{PlayerAction::Bet, 1},
+			                               PlayerMove{PlayerAction::Bet, raise},
 			                               PlayerMove{}});
 		}
 		else
 		{
+			const Cash highestBet = lastBet == PlayerIndices::NoPlayer ? 0 : stakes.at(lastBet);
+			const Cash difference = highestBet - stakes.at(nextPlayerIndex);
 			// call, raise, fold
 			if (numberOfRaises >= RuleSet<TGameMode>::NUMBER_OF_RAISES)
 			{
 				return TurnOptions<TGameMode>(nextPlayerIndex,
-				                              {PlayerMove{PlayerAction::Call, 1},
+				                              {PlayerMove{PlayerAction::Call, difference},
 				                               PlayerMove{},
 				                               PlayerMove{PlayerAction::Fold, 0}});
 			}
 			else
 			{
 				return TurnOptions<TGameMode>(nextPlayerIndex,
-				                              {PlayerMove{PlayerAction::Call, 1},
-				                               PlayerMove{PlayerAction::Raise, 1},
+				                              {PlayerMove{PlayerAction::Call, difference},
+				                               PlayerMove{PlayerAction::Raise, raise + difference},
 				                               PlayerMove{PlayerAction::Fold, 0}});
 			}
 		}
@@ -330,6 +368,7 @@ namespace dpm
 
 		if (!allButOneFolded)
 		{
+			// TODO Community cards
 			winner = 0;
 			auto bestHand = playerHands.at(winner);
 			for (auto indexToCheck = 1u; indexToCheck < playerHands.size(); ++indexToCheck)
@@ -353,6 +392,15 @@ namespace dpm
 			if (playerHands.at(i) != otherPlayerHands.at(i))
 				return false;
 		return true;
+	}
+
+	template<GameMode TGameMode>
+	void State<TGameMode>::startNextRound()
+	{
+		++round;
+		numberOfRaises = 0;
+		for (auto &previousAction: previousPlayerActions)
+			previousAction = PlayerAction::NoAction;
 	}
 
 }

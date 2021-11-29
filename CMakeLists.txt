@@ -1,12 +1,24 @@
-cmake_minimum_required(VERSION 3.0)
-project(poker)
+cmake_minimum_required(VERSION 3.16.0)
+
+set(PROJECT_NAME DPMpoker)
+set(LIBRARY_NAME DPMpoker)
+set(INCLUDE_DIR include)
+set(SOURCE_DIR src)
+set(EXAMPLES_DIR examples)
+
+option(BUILD_EXAMPLES "Builds all examples")
+
+project(${PROJECT_NAME})
 
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(src)
 
-add_executable(poker
-        main.cpp
+if (BUILD_EXAMPLES)
+    add_subdirectory(${EXAMPLES_DIR})
+endif ()
+
+add_library(${PROJECT_NAME}
+        include/DPMpoker/DPMpoker.hpp
         src/Card.cpp
         src/Card.h
         src/Enums/CardRank.h
@@ -15,6 +27,7 @@ add_executable(poker
         src/Enums/DealerAction.h
         src/Enums/GameMode.h
         src/Enums/GameNodeType.hpp
+        src/Enums/GameStateType.hpp
         src/Enums/MoveType.h
         src/Enums/PlayerAction.cpp
         src/Enums/PlayerAction.h
@@ -36,6 +49,7 @@ add_executable(poker
         src/Poker.h
         src/RoundHistory.h
         src/RuleSet/RuleSet.h
+        src/RuleSet/RuleSetLeducHoldem.hpp
         src/RuleSet/RuleSetKuhnPoker.h
         src/RuleSet/RuleSets.h
         src/Strategy.h
@@ -57,4 +71,17 @@ add_executable(poker
         src/Types/PlayerIndex.h
         src/Types/Turn.h)
 
-target_precompile_headers(poker PRIVATE pch.h)
+target_precompile_headers(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR}/${LIBRARY_NAME}/pch.h)
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE_DIR}/${LIBRARY_NAME}>
+        $<INSTALL_INTERFACE:${INCLUDE_DIR}/${LIBRARY_NAME}>)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${SOURCE_DIR}>)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:${INCLUDE_DIR}>)

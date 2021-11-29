@@ -11,8 +11,7 @@ namespace dpm
 	public:
 		explicit InitialGameState(State<TGameMode> &&initialState);
 
-		[[nodiscard]]
-		bool isTerminal() const override;
+		[[nodiscard]] GameStateType getGameStateType() const override;
 
 		void generateChildren();
 
@@ -34,9 +33,9 @@ namespace dpm
 	}
 
 	template<GameMode TGameMode>
-	bool InitialGameState<TGameMode>::isTerminal() const
+	GameStateType InitialGameState<TGameMode>::getGameStateType() const
 	{
-		return false;
+		return GameStateType::INITIAL;
 	}
 
 	template<GameMode TGameMode>
@@ -60,25 +59,26 @@ namespace dpm
 				}
 				else
 				{
-					const auto handsSize = hands.size();
-					for (auto handIndex = 0u; handIndex < hands.size(); ++handIndex)
+					auto handsSize = hands.size();
+					for (auto handIndex = 0u; handIndex < handsSize; ++handIndex)
 					{
-						auto &playerHands = hands.at(handIndex);
 						auto addedCard = false;
 						for (const auto &card: allCards)
 						{
-							if (handsContainCard(playerHands, card))
-								continue;
-							if (addedCard)
+							auto &playerHands = hands.at(handIndex);
+							if (!handsContainCard(playerHands, card))
 							{
-								auto newPlayerHands = playerHands;
-								newPlayerHands.at(playerIndex).setCard(cardIndex, card);
-								hands.push_back(newPlayerHands);
-							}
-							else
-							{
-								playerHands.at(playerIndex).addCard(card);
-								addedCard = true;
+								if (addedCard)
+								{
+									auto newPlayerHands = playerHands;
+									newPlayerHands.at(playerIndex).setCard(cardIndex, card);
+									hands.push_back(newPlayerHands);
+								}
+								else
+								{
+									playerHands.at(playerIndex).addCard(card);
+									addedCard = true;
+								}
 							}
 						}
 					}
@@ -87,6 +87,7 @@ namespace dpm
 		}
 		for (auto i = 0u; i < hands.size(); ++i)
 		{
+			// TODO more than 2 players: index 2 begins
 			auto child = GameState<TGameMode>::createGameState(State<TGameMode>(*this));
 			child->playerHands = std::move(hands.at(i));
 			child->previousPlayer = PlayerIndices::Dealer;
